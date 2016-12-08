@@ -1,7 +1,7 @@
-let io = require('socket.io-client');
-let socket = io('http://localhost:1337');
+var io = require('socket.io-client');
+var socket = io('http://localhost:1337');
 
-let ai = require('./ai');
+var ai = require('./ai');
 
 socket.on('connect', function () {
   socket.emit('join', ai.room);
@@ -12,9 +12,7 @@ socket.on('start', function (config) {
 });
 
 socket.on('nextMove', function (prevMoves) {
-  let direction = ai.nextMove(prevMoves);
-
-  socket.emit('move', direction);
+  socket.emit('move', ai.nextMove(prevMoves));
 });
 
 socket.on('end', function (winnerID) {
