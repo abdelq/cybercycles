@@ -1,8 +1,18 @@
-let app = require('express');
+let app = require('express')();
 let server = require('http').Server(app);
 let io = require('socket.io')(server);
 
 let config = require('./config');
+
+app.get('/*', function (req, res) {
+  let roomID = req.url.slice(1);
+  let room = io.sockets.adapter.rooms[roomID];
+  if (room) {
+    res.send(room.grid);
+  } else {
+    res.send('');
+  }
+});
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
