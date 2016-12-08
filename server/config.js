@@ -1,42 +1,27 @@
-let server = {
+const server = {
   port: 1337,
-  homepage: 'http://hackathon.iro.umontreal.ca'
+  homepage: 'http://hackathon.iro.umontreal.ca',
 };
 
-let delays = {
+const delays = {
   init: 400,
-  default: 200
+  default: 200,
 };
 
-let grid = {
-  w: {
-    min: 30,
-    max: 40
-  },
-  h: {
-    min: 20,
-    max: 30
-  }
+const grid = {
+  w: { min: 30, max: 40 },
+  h: { min: 20, max: 30 },
 };
 
-let obstacles = {
-  amount: {
-    min: 2,
-    max: 6
-  },
-  w: {
-    min: 2,
-    max: 6
-  },
-  h: {
-    min: 2,
-    max: 6
-  },
-  symetrical: true
+const obstacles = {
+  amount: { min: 2, max: 6 },
+  w: { min: 2, max: 6 },
+  h: { min: 2, max: 6 },
+  symetrical: true,
 };
 
-let players = {
-  // teams: false
+const players = {
+  // teams: false,
 };
 
 module.exports = {
@@ -44,5 +29,5 @@ module.exports = {
   delays: delays,
   grid: grid,
   obstacles: obstacles,
-  players: players
+  players: players,
 };

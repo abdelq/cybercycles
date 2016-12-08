@@ -22,5 +22,5 @@ module.exports = {
   room: room,
   createGrid: createGrid,
   nextMove: nextMove,
-  victory: victory
+  victory: victory,
 };
