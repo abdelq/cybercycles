@@ -12,5 +12,11 @@ socket.on('start', function (config) {
 });
 
 socket.on('nextMove', function (prevMoves) {
-  ai.nextMove(prevMoves);
+  let direction = ai.nextMove(prevMoves);
+
+  socket.emit('move', direction);
+});
+
+socket.on('end', function (winnerID) {
+  ai.victory(winnerID);
 });

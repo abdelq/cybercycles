@@ -70,7 +70,7 @@ function setPlayers(room, gridW, gridH) {
 }
 
 function start(room) {
-  // Dimensions
+  // Grille
   let w = randomInt(30, 40);
   let h = randomInt(18, 30);
 
@@ -106,10 +106,71 @@ function start(room) {
     });
   }
 
-  io.to(room).emit('nextMove', []);
+  let rooms = io.sockets.adapter.rooms;
+  let roomID = Object.keys(rooms).find(id => rooms[id] === room);
+  io.to(roomID).emit('nextMove', []);
+}
+
+function isEmptyCell(grid, x, y) {
+  return y >= 0 && x >= 0 &&
+         y < grid.length && x < grid[0].length &&
+         grid[y][x] == 0;
 }
 
 function step(room) {
+  let players = getPlayers(room);
+
+  // Mise à jour de la position
+  players.forEach(player => {
+    switch(player.direction) {
+      case 'u': player.y -= 1; break;
+      case 'l': player.x -= 1; break;
+      case 'd': player.y += 1; break;
+      case 'r': player.x += 1; break;
+    }
+  });
+
+  // Test si collision
+  if (players[0].x == players[1].x &&
+      players[0].y == players[1].y) {
+    room.grid[players[0].y][players[1].x] = -2;
+
+    players[0].dead = true;
+    players[1].dead = true;
+  } else {
+    players.forEach(player => {
+      if (isEmptyCell(room.grid, player.x, player.y)) {
+        room.grid[player.y][player.x] = player.id;
+      } else {
+        if (player.y >= 0 && player.x >= 0 && player.y < room.grid.length && player.x < room.grid[0].length) {
+          room.grid[player.y][player.x] = -2;
+        }
+        player.dead = true;
+      }
+    });
+  }
+
+  let alive = players.filter(p => !p.dead);
+
+  let directions = players.map(p => {
+    return {id: p.id, direction: p.direction}
+  });
+
+  let rooms = io.sockets.adapter.rooms;
+  let roomID = Object.keys(rooms).find(id => rooms[id] === room);
+  io.to(roomID).emit('nextMove', directions);
+
+  if (alive.length == 2) {
+    setTimeout(function () {
+      step(room);
+    }, config.delay);
+  } else if (alive.length == 1) {
+    // console.log();
+    io.to(roomID).emit('end', alive[0].id);
+  } else if (alive.length == 0) {
+    // console.log();
+    io.to(roomID).emit('end', false);
+  }
 }
 
 io.on('connection', function (socket) {
@@ -130,9 +191,32 @@ io.on('connection', function (socket) {
 
     if (room.length === 2) {
       start(room);
+
       setTimeout(function () {
         step(room);
       }, config.initDelay);
+    }
+  });
+
+  socket.on('move', function (direction) {
+    if ('uldr'.indexOf(direction) !== -1) {
+      socket.state.direction = direction;
+    }
+  });
+
+  socket.on('disconnecting', function () {
+    for (let roomID in socket.rooms) {
+      let room = io.sockets.adapter.rooms[roomID];
+
+      if (room.length > 1) {
+        let winner = getPlayers(room).find(player =>
+          player.id !== socket.state.id
+        );
+
+        io.to(roomID).emit('end', winner.id);
+
+        console.log(`Client ${socket.id} (${socket.state.id}) left ${roomID}\nThe winner is (${winner.id})`);
+      }
     }
   });
 });
