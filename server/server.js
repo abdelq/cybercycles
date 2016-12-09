@@ -4,6 +4,8 @@ const io = require('socket.io')(server);
 
 const conf = require('./config');
 
+let testMode = process.argv.indexOf('--test') != -1;
+
 app.get('/', (req, res) => {
   // Redirection vers la page d'accueil du Hackathon
   res.redirect(conf.server.homepage);
@@ -74,8 +76,8 @@ function setPlayers(room, grid) {
   let y;
 
   do {
-    x = randomInt(0, Math.round(grid.w / 4));
-    y = randomInt(0, grid.h - 1);
+    x = testMode? 0 : randomInt(0, Math.round(grid.w / 4));
+    y = testMode? 0 : randomInt(0, grid.h - 1);
   } while (room.grid[y][x] !== 0);
 
   const players = getPlayers(room);
@@ -107,7 +109,7 @@ function start(room) {
   room.grid = Array(h).fill().map(() => Array(w).fill(0));
 
   // Obstacles
-  const obAmount = randomInt(conf.obstacles.amount.min, conf.obstacles.amount.max);
+  const obAmount = testMode ? 0 : randomInt(conf.obstacles.amount.min, conf.obstacles.amount.max);
   const obstacles = setObstacles(obAmount, { w, h });
 
   obstacles.forEach((ob) => {
