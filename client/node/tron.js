@@ -10,15 +10,15 @@ socket.on('connect', () => {
 });
 
 socket.on('start', (config) => {
-  ai.createGrid(config);
+  ai.start(config);
   open(`http://localhost:1337/rooms/${ai.room}`);
 });
 
 socket.on('nextMove', (prevMoves) => {
-  let move = ai.nextMove(prevMoves);
+  let move = ai.next(prevMoves);
   socket.emit('move', move);
 });
 
 socket.on('end', (winnerID) => {
-  ai.victory(winnerID);
+  ai.end(winnerID);
 });
