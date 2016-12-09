@@ -19,8 +19,8 @@ var victory = function (winnerID) {
 };
 
 module.exports = {
-  room: room,
-  createGrid: createGrid,
-  nextMove: nextMove,
-  victory: victory,
+  room,
+  createGrid,
+  nextMove,
+  victory,
 };

@@ -21,13 +21,9 @@ app.get('/rooms/:id', (req, res) => {
 });
 
 function getSockets(room) {
-  const sockets = [];
-
-  for (const id in room.sockets) {
-    sockets.push(io.sockets.connected[id]);
-  }
-
-  return sockets;
+  return Object.keys(room.sockets).map(id =>
+    io.sockets.connected[id]
+  );
 }
 
 function getPlayers(room) {
@@ -112,7 +108,7 @@ function start(room) {
 
   // Obstacles
   const obAmount = randomInt(conf.obstacles.amount.min, conf.obstacles.amount.max);
-  const obstacles = setObstacles(obAmount, { w: w, h: h });
+  const obstacles = setObstacles(obAmount, { w, h });
 
   obstacles.forEach((ob) => {
     for (let x = (ob.x + ob.w) - 1; x >= ob.x; x -= 1) {
@@ -123,7 +119,7 @@ function start(room) {
   });
 
   // Joueurs
-  const players = setPlayers(room, { w: w, h: h });
+  const players = setPlayers(room, { w, h });
 
   players.forEach(p => setGrid(room.grid, p.x, p.y, p.id));
 
@@ -132,10 +128,10 @@ function start(room) {
 
   getSockets(room).forEach((socket) => {
     socket.emit('start', {
-      players: players,
-      obstacles: obstacles,
-      w: w,
-      h: h,
+      players,
+      obstacles,
+      w,
+      h,
       me: socket.state.id,
     });
   });
@@ -187,12 +183,12 @@ function step(room) {
   const roomID = getRoomID(room);
 
   // Envoi des directions
-  const directions = players.map((p) => {
-    return {
-      id: p.id,
-      direction: p.direction,
-    };
-  });
+  const directions = players.map(p =>
+     ({
+       id: p.id,
+       direction: p.direction,
+     })
+  );
 
   io.to(roomID).emit('nextMove', directions);
 
@@ -244,8 +240,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
-    for (const roomID in socket.rooms) {
-      const room = io.sockets.adapter.rooms[roomID];
+    Object.keys(socket.rooms).forEach((roomID) => {
+      const room = io.sockets.connected[roomID];
 
       if (room.length > 1) {
         const winner = getSockets(room).find(s => s.state.id !== socket.state.id);
@@ -255,7 +251,7 @@ io.on('connection', (socket) => {
         console.log(`Client ${socket.id} (${socket.state.id}) left ${roomID}`);
         console.log(`The winner is ${winner.id} (${winner.state.id})`);
       }
-    }
+    });
   });
 });
 

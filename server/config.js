@@ -25,9 +25,9 @@ const players = {
 };
 
 module.exports = {
-  server: server,
-  delays: delays,
-  grid: grid,
-  obstacles: obstacles,
-  players: players,
+  server,
+  delays,
+  grid,
+  obstacles,
+  players,
 };
