@@ -201,8 +201,10 @@ function step(room) {
     }, conf.delays.default);
   } else if (alive.length === 1) {
     io.to(roomID).emit('end', alive[0].id);
+    console.log(`Room: ${roomID}. Winner: ${alive[0].id}.`);
   } else if (alive.length === 0) {
     io.to(roomID).emit('end', 0);
+    console.log(`Room ${roomID}. Tie.`);
   }
 }
 
@@ -249,7 +251,7 @@ io.on('connection', (socket) => {
         io.to(roomID).emit('end', winner.state.id);
 
         console.log(`Client ${socket.id} (${socket.state.id}) left ${roomID}`);
-        console.log(`The winner is ${winner.id} (${winner.state.id})`);
+        console.log(`Room: ${roomID}. Winner: ${winner.state.id}.`);
       }
     });
   });
