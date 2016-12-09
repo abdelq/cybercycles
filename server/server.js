@@ -147,8 +147,20 @@ function isEmpty(grid, x, y) {
          grid[y][x] === 0;
 }
 
+function kickSockets(room) {
+  const roomID = getRoomID(room);
+
+  getSockets(room).forEach((socket) => {
+    socket.leave(roomID);
+  });
+}
+
 function step(room) {
   const players = getPlayers(room);
+
+  if (players.length < 2) {
+    return;
+  }
 
   // Mise à jour de la position
   players.forEach((p) => {
@@ -203,9 +215,11 @@ function step(room) {
     }, conf.delays.default);
   } else if (alive.length === 1) {
     io.to(roomID).emit('end', alive[0].id);
+    kickSockets(room);
     console.log(`Room: ${roomID}. Winner: ${alive[0].id}.`);
   } else if (alive.length === 0) {
     io.to(roomID).emit('end', 0);
+    kickSockets(room);
     console.log(`Room ${roomID}. Tie.`);
   }
 }
@@ -226,7 +240,7 @@ io.on('connection', (socket) => {
 
     console.log(`Client ${socket.id} joined ${roomID}`);
 
-    if (room.length === 2) {
+    if (room.length == 2) {
       start(room);
 
       setTimeout(() => {
@@ -245,12 +259,13 @@ io.on('connection', (socket) => {
 
   socket.on('disconnecting', () => {
     Object.keys(socket.rooms).forEach((roomID) => {
-      const room = io.sockets.connected[roomID];
+      const room = io.sockets.adapter.rooms[roomID];
 
       if (room.length > 1) {
         const winner = getSockets(room).find(s => s.state.id !== socket.state.id);
 
         io.to(roomID).emit('end', winner.state.id);
+        kickSockets(room);
 
         console.log(`Client ${socket.id} (${socket.state.id}) left ${roomID}`);
         console.log(`Room: ${roomID}. Winner: ${winner.state.id}.`);

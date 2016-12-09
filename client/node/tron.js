@@ -1,5 +1,5 @@
 const io = require('socket.io-client');
-const open = require('opn');
+// const open = require('opn');
 
 const ai = require('./ai');
 
@@ -11,7 +11,7 @@ socket.on('connect', () => {
 
 socket.on('start', (config) => {
   ai.start(config);
-  open(`http://localhost:1337/rooms/${ai.room}`);
+  // open(`http://localhost:1337/rooms/${ai.room}`);
 });
 
 socket.on('nextMove', (prevMoves) => {
