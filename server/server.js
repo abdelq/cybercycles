@@ -4,7 +4,7 @@ const io = require('socket.io')(server);
 
 const conf = require('./config');
 
-let testMode = process.argv.indexOf('--test') != -1;
+const testMode = process.argv.indexOf('--test') !== -1;
 
 app.get('/', (req, res) => {
   // Redirection vers la page d'accueil du Hackathon
@@ -76,8 +76,8 @@ function setPlayers(room, grid) {
   let y;
 
   do {
-    x = testMode? 0 : randomInt(0, Math.round(grid.w / 4));
-    y = testMode? 0 : randomInt(0, grid.h - 1);
+    x = testMode ? 0 : randomInt(0, Math.round(grid.w / 4));
+    y = testMode ? 0 : randomInt(0, grid.h - 1);
   } while (room.grid[y][x] !== 0);
 
   const players = getPlayers(room);
@@ -216,11 +216,11 @@ function step(room) {
   } else if (alive.length === 1) {
     io.to(roomID).emit('end', alive[0].id);
     kickSockets(room);
-    console.log(`Room: ${roomID}. Winner: ${alive[0].id}.`);
+    console.log(`Match ended in room: ${roomID}. Winner: ${alive[0].id}.`);
   } else if (alive.length === 0) {
     io.to(roomID).emit('end', 0);
     kickSockets(room);
-    console.log(`Room ${roomID}. Tie.`);
+    console.log(`Match ended in room: ${roomID}. Tie.`);
   }
 }
 
@@ -267,13 +267,13 @@ io.on('connection', (socket) => {
         io.to(roomID).emit('end', winner.state.id);
         kickSockets(room);
 
-        console.log(`Client ${socket.id} (${socket.state.id}) left ${roomID}`);
-        console.log(`Room: ${roomID}. Winner: ${winner.state.id}.`);
+        console.log(`Client ${socket.id} left ${roomID}`);
+        console.log(`Match ended in room: ${roomID}. Winner: ${winner.state.id}.`);
       }
     });
   });
 });
 
 server.listen(conf.server.port, () => {
-  console.log(`Server started on port ${conf.server.port}`);
+  console.log(`Server listening on port ${conf.server.port}`);
 });

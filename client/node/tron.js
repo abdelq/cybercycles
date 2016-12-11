@@ -15,10 +15,11 @@ socket.on('start', (config) => {
 });
 
 socket.on('nextMove', (prevMoves) => {
-  let move = ai.next(prevMoves);
+  const move = ai.next(prevMoves);
   socket.emit('move', move);
 });
 
 socket.on('end', (winnerID) => {
   ai.end(winnerID);
+  process.exit();
 });
