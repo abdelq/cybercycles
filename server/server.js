@@ -166,16 +166,14 @@ function start(room) {
   io.to(roomID).emit('nextMove', []);
 }
 
-/*
 function isEmpty(grid, x, y) {
   return y >= 0 && x >= 0 &&
          y < grid.length && x < grid[y].length &&
          grid[y][x] === 0;
 }
-*/
 
 function step(room) {
-  const aliveTeams = getAliveTeams(room);
+  let aliveTeams = getAliveTeams(room);
 
   // Stop if less than 2 teams are alive
   if (aliveTeams.length < 2) {
@@ -196,26 +194,28 @@ function step(room) {
   });
 
   // Collisions
-  // TODO Find players with same position
-  /*
-  if (something) {
-    // Between 2 players
-    setGrid(room.grid, players[0].x, players[0].y, -2);
-    players[0].dead = true;
-    players[1].dead = true;
-  }
-  */
-
+  // TODO Improve this horrible solution
   players.forEach((player) => {
-    /*
-    if (isEmpty(room.grid, player.x, player.y)) {
-      setGrid(room.grid, player.x, player.y, player.id);
-    } else {
+    let samePosPlayers = players.filter((p) =>
+      player.x === p.x && player.y === p.y
+    );
+
+    if (samePosPlayers > 1) { // Collision between players
+      /*
+      samePosPlayers.forEach((p) => {
+        p.dead = true;
+      });
+      */
       setGrid(room.grid, player.x, player.y, -2);
-      
+
+      player.dead = true;
+    } else if (isEmpty(room.grid, player.x, player.y)) {
+      setGrid(room.grid, player.x, player.y, player.id);
+    } else { // Collision between player and obstacle
+      setGrid(room.grid, player.x, player.y, -2);
+
       player.dead = true;
     }
-    */
   });
 
   const roomID = getRoomID(room);
@@ -326,7 +326,7 @@ io.on('connection', (socket) => {
       } else { // Match started
         socket.state.dead = true;
 
-        const aliveTeams = getAliveTeams(room);
+        let aliveTeams = getAliveTeams(room);
 
         if (aliveTeams.length === 1) {
           let teamID = aliveTeams[0][0].state.team;
