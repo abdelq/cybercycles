@@ -33,6 +33,14 @@ function getPlayers(room) {
                          .filter(player => player.team);
 }
 
+function getAliveTeams(room) {
+  return Object.keys(room.teams).map(id =>
+    room.teams[id]
+  ).filter(team =>
+    team.find(socket => !socket.state.dead)
+  );
+}
+
 function getRoomID(room) {
   const rooms = io.sockets.adapter.rooms;
 
@@ -167,14 +175,16 @@ function isEmpty(grid, x, y) {
 */
 
 function step(room) {
-  /*
-  const players = getPlayers(room);
+  const aliveTeams = getAliveTeams(room);
 
-  if (players.length < 2) {
+  // Stop if less than 2 teams are alive
+  if (aliveTeams.length < 2) {
     return;
   }
 
-  // Mise à jour de la position
+  const players = getPlayers(room);
+
+  // Position update
   players.forEach((p) => {
     switch (p.direction) {
       case 'u': p.y -= 1; break;
@@ -185,30 +195,32 @@ function step(room) {
     }
   });
 
-  // Test de collisions
-  if (players[0].x === players[1].x &&
-      players[0].y === players[1].y) {
-    // Contre les joueurs
+  // Collisions
+  // TODO Find players with same position
+  /*
+  if (something) {
+    // Between 2 players
     setGrid(room.grid, players[0].x, players[0].y, -2);
-
     players[0].dead = true;
     players[1].dead = true;
-  } else {
-    // Contre un obstacle
-    players.forEach((player) => {
-      if (isEmpty(room.grid, player.x, player.y)) {
-        setGrid(room.grid, player.x, player.y, player.id);
-      } else {
-        setGrid(room.grid, player.x, player.y, -2);
-
-        player.dead = true;
-      }
-    });
   }
+  */
+
+  players.forEach((player) => {
+    /*
+    if (isEmpty(room.grid, player.x, player.y)) {
+      setGrid(room.grid, player.x, player.y, player.id);
+    } else {
+      setGrid(room.grid, player.x, player.y, -2);
+      
+      player.dead = true;
+    }
+    */
+  });
 
   const roomID = getRoomID(room);
 
-  // Envoi des directions
+  // Sending player moves
   const directions = players.map(p =>
      ({
        id: p.id,
@@ -218,23 +230,24 @@ function step(room) {
 
   io.to(roomID).emit('nextMove', directions);
 
-  // Gestion de mort
-  const alive = players.filter(p => !p.dead);
+  // Death Management
+  aliveTeams = getAliveTeams(room);
 
-  if (alive.length === 2) {
-    setTimeout(() => {
-      step(room);
-    }, conf.delays.default);
-  } else if (alive.length === 1) {
-    io.to(roomID).emit('end', alive[0].id);
+  if (aliveTeams.length > 1) {
+    setTimeout(() => step(room), conf.delays.default);
+  } else if (aliveTeams.length === 1) {
+    let teamID = aliveTeams[0][0].state.team;
+
+    io.to(roomID).emit('end', teamID);
     kickSockets(room);
-    console.log(`Match ended in room: ${roomID}. Winner: ${alive[0].id}.`);
-  } else if (alive.length === 0) {
-    io.to(roomID).emit('end', 0);
+
+    console.log(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
+  } else if (aliveTeams.length === 0) {
+    io.to(roomID).emit('end', false);
     kickSockets(room);
+
     console.log(`Match ended in room: ${roomID}. Tie.`);
   }
-  */
 }
 
 io.on('connection', (socket) => {
@@ -313,11 +326,7 @@ io.on('connection', (socket) => {
       } else { // Match started
         socket.state.dead = true;
 
-        const aliveTeams = Object.keys(room.teams).map(id =>
-          room.teams[id]
-        ).filter(team =>
-          team.find(socket => !socket.state.dead)
-        );
+        const aliveTeams = getAliveTeams(room);
 
         if (aliveTeams.length === 1) {
           let teamID = aliveTeams[0][0].state.team;
