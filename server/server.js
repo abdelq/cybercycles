@@ -29,7 +29,6 @@ function getSockets(room) {
 }
 
 function getPlayers(room) {
-  // Maybe filter depending if they have a state or not
   return getSockets(room).map(socket => socket.state).filter(player => player.team);
 }
 
@@ -108,6 +107,8 @@ function setPlayers(room, grid) {
 
       socket.state.x = x;
       socket.state.y = y;
+      // TODO TODO TODO TODO TODO TODO
+      // socket.state.direction = 'u';
     });
   });
 
@@ -164,6 +165,7 @@ function isEmpty(grid, x, y) {
 }
 */
 
+/*
 function step(room) {
   const players = getPlayers(room);
 
@@ -232,6 +234,7 @@ function step(room) {
     console.log(`Match ended in room: ${roomID}. Tie.`);
   }
 }
+*/
 
 io.on('connection', (socket) => {
   socket.on('join', (roomID, teamID) => {
@@ -265,8 +268,7 @@ io.on('connection', (socket) => {
       x: 0,
       y: 0,
       team: teamID,
-      // TODO Give proper move after I finish positionning
-      // direction: room.lastID % 2 ? 'u' : 'd',
+      direction: '',
     };
 
     console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) joined ${roomID}`);
@@ -293,36 +295,25 @@ io.on('connection', (socket) => {
     let roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
     let room = io.sockets.adapter.rooms[roomID];
 
-    // Match isn't started yet
-    if (!room.grid) {
-      if (socket.state.team) {
-        // Removes the player from his team
-        let team = room.teams[socket.state.team];
-        team.splice(team.indexOf(socket), 1);
+    if (socket.state.team) {
+      // Removes the player from his team
+      let team = room.teams[socket.state.team];
+      team.splice(team.indexOf(socket), 1);
 
-        // Deletes the team if empty
-        if (team.length == 0) {
-          delete room.teams[socket.state.team]; 
+      console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) left ${roomID}`);
+
+      // Deletes the team if empty
+      if (team.length == 0) {
+        if (!room.grid) { // Match not started
+          delete room.teams[socket.state.team];
+        } else { // Match started
+          // TODO Check if more than 1 other team is still playing if only 1 team left alive
+          // io.to(roomID).emit('end', winner.state.id);
+          // kickSockets(room);
+          // console.log(`Match ended in room: ${roomID}. Winner: ${winner.state.id}.`);
         }
       }
     }
-
-    console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) left ${roomID}`);
-    /*
-    Object.keys(socket.rooms).forEach((roomID) => {
-      const room = io.sockets.adapter.rooms[roomID];
-
-      if (room.length > 1) {
-        const winner = getSockets(room).find(s => s.state.id !== socket.state.id);
-
-        io.to(roomID).emit('end', winner.state.id);
-        kickSockets(room);
-
-        console.log(`Client ${socket.id} left ${roomID}`);
-        console.log(`Match ended in room: ${roomID}. Winner: ${winner.state.id}.`);
-      }
-    });
-    */
   });
 });
 
