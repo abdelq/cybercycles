@@ -29,7 +29,8 @@ function getSockets(room) {
 }
 
 function getPlayers(room) {
-  return getSockets(room).map(socket => socket.state).filter(player => player.team);
+  return getSockets(room).map(socket => socket.state)
+                         .filter(player => player.team);
 }
 
 function getRoomID(room) {
@@ -107,8 +108,8 @@ function setPlayers(room, grid) {
 
       socket.state.x = x;
       socket.state.y = y;
-      // TODO TODO TODO TODO TODO TODO
-      // socket.state.direction = 'u';
+
+      x >= (grid.h / 2) ? socket.state.direction = 'u' : socket.state.direction = 'd';
     });
   });
 
