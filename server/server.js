@@ -91,32 +91,27 @@ function setObstacles(amount, grid) {
 function setPlayers(room, grid) {
   let teams = Object.keys(room.teams).map(id => room.teams[id]);
 
-  teams.forEach(team => {
-    console.log(team.length);
-  });
-  // console.log(penis);
-  // room.teams.forEach(team => {console.log(team)});
-  // const players = getPlayers(room);
-  /*
-  let x;
-  let y;
+  teams.forEach((team, tIndex) => {
+    let tArea = Math.floor(grid.w / conf.teams.amount);
 
-  do {
-    x = testMode ? 0 : randomInt(0, Math.round(grid.w / 4));
-    y = testMode ? 0 : randomInt(0, grid.h - 1);
-  } while (room.grid[y][x] !== 0);
+    team.forEach((socket, pIndex) => {
+      let pArea = Math.floor(grid.h / conf.teams.size);
 
-  players.forEach((player) => {
-    if (player.id % 2) {
-      player.x = x;
-      player.y = y;
-    } else {
-      player.x = grid.w - x - 1;
-      player.y = grid.h - y - 1;
-    }
+      // TODO Add back testMode if possible
+      // Possible infinite loop
+      // TODO Find a sexier solution if possible
+      let x; let y;
+      do {
+        x = randomInt(tIndex * tArea, (tIndex + 1) * tArea);
+        y = randomInt(pIndex * pArea, (pIndex + 1) * pArea);
+      } while (room.grid[y][x] !== 0);
+
+      socket.state.x = x;
+      socket.state.y = y;
+    });
   });
-  */
-  // return players;
+
+  return getPlayers(room);
 }
 
 function start(room) {
@@ -142,14 +137,12 @@ function start(room) {
   // Joueurs
   const players = setPlayers(room, { w, h });
 
-  /*
   // TODO This should be called in setPlayers
   players.forEach(p => setGrid(room.grid, p.x, p.y, p.id));
 
   // Envoi de l'information
   const roomID = getRoomID(room);
 
-  // TODO Maybe add team info
   getSockets(room).forEach((socket) => {
     socket.emit('start', {
       players,
@@ -161,7 +154,6 @@ function start(room) {
   });
 
   io.to(roomID).emit('nextMove', []);
-  */
 }
 
 /*
