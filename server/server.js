@@ -29,6 +29,7 @@ function getSockets(room) {
 }
 
 function getPlayers(room) {
+  // Maybe filter depending if they have a state or not
   return getSockets(room).map(socket => socket.state);
 }
 
@@ -38,11 +39,26 @@ function getRoomID(room) {
   return Object.keys(rooms).find(id => rooms[id] === room);
 }
 
+// TODO Test again w/ different ways/vars
+function kickSockets(room) {
+  const roomID = getRoomID(room);
+
+  getSockets(room).forEach((socket) => {
+    socket.leave(roomID);
+  });
+}
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function setGrid(grid, x, y, val) {
+  if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
+    grid[y][x] = val;
+  }
+}
+
+// TODO grid is a bad parameter name
 function setObstacles(amount, grid) {
   const obstacles = [];
 
@@ -71,7 +87,9 @@ function setObstacles(amount, grid) {
   return obstacles;
 }
 
+// TODO grid is a bad parameter name
 function setPlayers(room, grid) {
+  /*
   let x;
   let y;
 
@@ -93,12 +111,7 @@ function setPlayers(room, grid) {
   });
 
   return players;
-}
-
-function setGrid(grid, x, y, val) {
-  if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
-    grid[y][x] = val;
-  }
+  */
 }
 
 function start(room) {
@@ -112,6 +125,7 @@ function start(room) {
   const obAmount = testMode ? 0 : randomInt(conf.obstacles.amount.min, conf.obstacles.amount.max);
   const obstacles = setObstacles(obAmount, { w, h });
 
+  // TODO This should be called in setObstacles
   obstacles.forEach((ob) => {
     for (let x = (ob.x + ob.w) - 1; x >= ob.x; x -= 1) {
       for (let y = (ob.y + ob.h) - 1; y >= ob.y; y -= 1) {
@@ -123,6 +137,7 @@ function start(room) {
   // Joueurs
   const players = setPlayers(room, { w, h });
 
+  // TODO This should be called in setPlayers
   players.forEach(p => setGrid(room.grid, p.x, p.y, p.id));
 
   // Envoi de l'information
@@ -141,19 +156,13 @@ function start(room) {
   io.to(roomID).emit('nextMove', []);
 }
 
+/*
 function isEmpty(grid, x, y) {
   return y >= 0 && x >= 0 &&
          y < grid.length && x < grid[y].length &&
          grid[y][x] === 0;
 }
-
-function kickSockets(room) {
-  const roomID = getRoomID(room);
-
-  getSockets(room).forEach((socket) => {
-    socket.leave(roomID);
-  });
-}
+*/
 
 function step(room) {
   const players = getPlayers(room);
@@ -225,27 +234,50 @@ function step(room) {
 }
 
 io.on('connection', (socket) => {
-  socket.on('join', (roomID) => {
+  socket.on('join', (roomID, teamID) => {
     socket.join(roomID);
 
     const room = io.sockets.adapter.rooms[roomID];
-    room.lastID ? room.lastID += 1 : room.lastID = 1;
+    let teams = room.teams ? room.teams : room.teams = {};
+    let lastID = room.lastID ? room.lastID += 1 : room.lastID = 1;
 
+    // Teams
+    if (Object.keys(teams).length < conf.teams.amount) {
+      if (!teamID) {
+        teamID = lastID;
+      }
+
+      let team = teams[teamID];
+      if (!team) {
+        teams[teamID] = [socket];
+      } else if (team.length < conf.teams.size) {
+        team.push(socket);
+      } else {
+        teamID = null;
+      }
+    } else {
+      teamID = null;
+    }
+
+    // Player
     socket.state = {
-      id: room.lastID,
+      id: lastID,
       x: 0,
       y: 0,
-      direction: room.lastID % 2 ? 'u' : 'd',
+      team: teamID,
+      // TODO Give proper move after I finish positionning
+      // direction: room.lastID % 2 ? 'u' : 'd',
     };
 
-    console.log(`Client ${socket.id} joined ${roomID}`);
+    console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) joined ${roomID}`);
 
-    if (room.length == 2) {
-      start(room);
+    let fullTeams = Object.keys(teams).filter((id) => {
+      return teams[id].length == conf.teams.size;
+    });
 
-      setTimeout(() => {
-        step(room);
-      }, conf.delays.init);
+    if (fullTeams.length == conf.teams.amount) {
+      // start(room);
+      // setTimeout(() => step(room), conf.delays.init);
     }
   });
 
@@ -258,6 +290,28 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
+    let roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
+    let room = io.sockets.adapter.rooms[roomID];
+
+    // Match isn't started yet
+    if (!room.grid) {
+      if (socket.state.team) {
+        // Removes the player from his team
+        let team = room.teams[socket.state.team];
+        team.splice(team.indexOf(socket), 1);
+
+        // Deletes the team if empty
+        if (team.length == 0) {
+          delete room.teams[socket.state.team]; 
+        }
+      }
+    }
+
+    // TODO Remove socket from room.teams if becomes undefined! Remove team if he was only one in there
+    // Find room != his id or maybe filter? or findAll?
+    // What if I leave before game starts? I need to reset ids based on room.length? Also remove from room.teams
+    // Check if room.grid exists to know that game already started or not!
+    /*
     Object.keys(socket.rooms).forEach((roomID) => {
       const room = io.sockets.adapter.rooms[roomID];
 
@@ -271,6 +325,7 @@ io.on('connection', (socket) => {
         console.log(`Match ended in room: ${roomID}. Winner: ${winner.state.id}.`);
       }
     });
+    */
   });
 });
 

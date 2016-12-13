@@ -1,6 +1,6 @@
 // Config
 var room = 'abc123';
-var team = 'coolkids';
+var team = undefined;
 
 var direction = 'u'; // Déplacement de l'A.I.
 
