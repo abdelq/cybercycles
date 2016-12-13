@@ -20,8 +20,9 @@ const obstacles = {
   symetrical: true,
 };
 
-const players = {
-  // teams: false,
+const teams = {
+  amount: 2,
+  size: 1,
 };
 
 module.exports = {
@@ -29,5 +30,5 @@ module.exports = {
   delays,
   grid,
   obstacles,
-  players,
+  teams,
 };

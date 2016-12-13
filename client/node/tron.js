@@ -6,7 +6,7 @@ const ai = require('./ai');
 const socket = io('http://localhost:1337');
 
 socket.on('connect', () => {
-  socket.emit('join', ai.room);
+  socket.emit('join', ai.room, ai.team);
 });
 
 socket.on('start', (config) => {

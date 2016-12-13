@@ -1,24 +1,26 @@
-// Configurations
+// Config
 var room = 'abc123';
+var team = undefined;
 
 var direction = 'u'; // Déplacement de l'A.I.
 
-var start = function (config) {
+function start(config) {
   console.log(config);
-};
+}
 
-var next = function (prevMoves) {
+function next(prevMoves) {
   console.log(prevMoves);
 
   return direction;
-};
+}
 
-var end = function (winnerID) {
+function end(winnerID) {
   console.log(winnerID);
-};
+}
 
 module.exports = {
   room,
+  team,
   start,
   next,
   end,

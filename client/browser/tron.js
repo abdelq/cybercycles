@@ -1,7 +1,7 @@
 const socket = io('http://localhost:1337');
 
 socket.on('connect', () => {
-  socket.emit('join', room);
+  socket.emit('join', room, team);
 });
 
 socket.on('start', (config) => {
@@ -9,7 +9,7 @@ socket.on('start', (config) => {
 });
 
 socket.on('nextMove', (prevMoves) => {
-  let move = next(prevMoves);
+  const move = next(prevMoves);
   socket.emit('move', move);
 });
 
