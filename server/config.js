@@ -29,6 +29,6 @@ module.exports = {
   server,
   delays,
   grid,
-  obstacles,
+  ob: obstacles,
   teams,
 };

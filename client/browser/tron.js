@@ -9,12 +9,11 @@ socket.on('start', (config) => {
 });
 
 socket.on('nextMove', (prevMoves) => {
-  const move = next(prevMoves);
-  socket.emit('move', move);
+  socket.emit('move', next(prevMoves));
 });
 
-socket.on('end', (winnerID) => {
-  end(winnerID);
+socket.on('end', (teamID) => {
+  end(teamID);
 });
 
 document.querySelector('iframe').setAttribute('src', `http://localhost:1337/rooms/${room}`);

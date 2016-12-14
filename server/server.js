@@ -1,31 +1,31 @@
-const app = require('express')();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-
+const express = require('express');
+const http = require('http');
+const Server = require('socket.io');
 const conf = require('./config');
 
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Optional arguments
 const testMode = process.argv.indexOf('--test') !== -1;
 
-app.get('/', (req, res) => {
-  // Redirection vers la page d'accueil du Hackathon
-  res.redirect(conf.server.homepage);
-});
+// Homepage
+app.get('/', (req, res) => res.redirect(conf.server.homepage));
 
-// Visionnement web
+// Web player
 app.get('/rooms/:id', (req, res) => {
   const room = io.sockets.adapter.rooms[req.params.id];
 
   if (room) {
-    res.send(room.grid);
+    res.sendStatus(200);
   } else {
     res.sendStatus(404);
   }
 });
 
 function getSockets(room) {
-  return Object.keys(room.sockets).map(id =>
-    io.sockets.connected[id]
-  );
+  return Object.keys(room.sockets).map(id => io.sockets.connected[id]);
 }
 
 function getPlayers(room) {
@@ -33,31 +33,40 @@ function getPlayers(room) {
                          .filter(player => player.team);
 }
 
-function getAliveTeams(room) {
-  return Object.keys(room.teams).map(id =>
-    room.teams[id]
-  ).filter(team =>
-    team.find(socket => !socket.state.dead)
+function getTeams(room, alive) {
+  const teams = Object.keys(room.teams).map(id =>
+    room.teams[id].map(socket => socket.state)
   );
+
+  if (alive) {
+    return teams.filter(team =>
+      team.find(player => !player.dead)
+    );
+  }
+
+  return teams;
 }
 
 function getRoomID(room) {
   const rooms = io.sockets.adapter.rooms;
-
   return Object.keys(rooms).find(id => rooms[id] === room);
 }
 
-// TODO Test again w/ different ways/vars
-function kickSockets(room) {
-  const roomID = getRoomID(room);
+function getGrid(grid, x, y) {
+  if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
+    return grid[y][x];
+  }
 
-  getSockets(room).forEach((socket) => {
-    socket.leave(roomID);
-  });
+  return undefined;
 }
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function kickSockets(room) {
+  const roomID = getRoomID(room);
+  getSockets(room).forEach(socket => socket.leave(roomID));
 }
 
 function setGrid(grid, x, y, val) {
@@ -66,99 +75,105 @@ function setGrid(grid, x, y, val) {
   }
 }
 
-// TODO grid is a bad parameter name
 function setObstacles(amount, grid) {
   const obstacles = [];
 
   for (let i = 0; i < amount; i += 1) {
     const ob = {
-      x: randomInt(0, grid.w),
-      y: randomInt(0, grid.h),
-      w: randomInt(conf.obstacles.w.min, conf.obstacles.w.max),
-      h: randomInt(conf.obstacles.h.min, conf.obstacles.h.max),
+      x: randomInt(0, grid[0].length),
+      y: randomInt(0, grid.length),
+      w: randomInt(conf.ob.w.min, conf.ob.w.max),
+      h: randomInt(conf.ob.h.min, conf.ob.h.max),
     };
-
     obstacles.push(ob);
 
-    if (conf.obstacles.symetrical) {
+    if (conf.ob.symetrical) {
+      const x = grid[0].length - ob.w - ob.x;
+      const y = grid.length - ob.h - ob.y;
+
       const obSym = {
-        x: grid.w - ob.w - ob.x > 0 ? grid.w - ob.w - ob.x : 0,
-        y: grid.h - ob.h - ob.y > 0 ? grid.h - ob.h - ob.y : 0,
+        x: x > 0 ? x : 0,
+        y: y > 0 ? y : 0,
         w: ob.w,
         h: ob.h,
       };
-
       obstacles.push(obSym);
+
+      i += 1; // Increments a second time
     }
   }
 
-  return obstacles;
-}
-
-// TODO grid is a bad parameter name
-function setPlayers(room, grid) {
-  const teams = Object.keys(room.teams).map(id => room.teams[id]);
-
-  teams.forEach((team, tIndex) => {
-    const tArea = Math.floor(grid.w / conf.teams.amount);
-
-    team.forEach((socket, pIndex) => {
-      const pArea = Math.floor(grid.h / conf.teams.size);
-
-      // TODO Add back testMode if possible
-      // Possible infinite loop
-      // TODO Find a sexier solution if possible
-      let x; let y;
-      do {
-        x = randomInt(tIndex * tArea, (tIndex + 1) * tArea);
-        y = randomInt(pIndex * pArea, (pIndex + 1) * pArea);
-      } while (room.grid[y][x] !== 0);
-
-      socket.state.x = x;
-      socket.state.y = y;
-
-      x >= (grid.h / 2) ? socket.state.direction = 'u' : socket.state.direction = 'd';
-    });
-  });
-
-  return getPlayers(room);
-}
-
-function start(room) {
-  // Grille
-  const w = randomInt(conf.grid.w.min, conf.grid.w.max);
-  const h = randomInt(conf.grid.h.min, conf.grid.h.max);
-
-  room.grid = Array(h).fill().map(() => Array(w).fill(0));
-
-  // Obstacles
-  const obAmount = testMode ? 0 : randomInt(conf.obstacles.amount.min, conf.obstacles.amount.max);
-  const obstacles = setObstacles(obAmount, { w, h });
-
-  // TODO This should be called in setObstacles
+  // Drawing on grid
   obstacles.forEach((ob) => {
     for (let x = (ob.x + ob.w) - 1; x >= ob.x; x -= 1) {
       for (let y = (ob.y + ob.h) - 1; y >= ob.y; y -= 1) {
-        setGrid(room.grid, x, y, -1);
+        setGrid(grid, x, y, -1);
       }
     }
   });
 
-  // Joueurs
-  const players = setPlayers(room, { w, h });
+  return obstacles;
+}
 
-  // TODO This should be called in setPlayers
-  players.forEach(p => setGrid(room.grid, p.x, p.y, p.id));
+function setPlayers(room, grid) {
+  const teams = getTeams(room);
+  const players = getPlayers(room);
 
-  // Envoi de l'information
+  // Spawning surface for each team/player
+  const tArea = Math.floor(grid[0].length / conf.teams.amount);
+  const pArea = Math.floor(grid.length / conf.teams.size);
+
+  teams.forEach((team, tIndex) => {
+    team.forEach((player, pIndex) => {
+      let x; let y;
+
+      do {
+        x = randomInt(tArea * tIndex, tArea * (tIndex + 1));
+        y = randomInt(pArea * pIndex, pArea * (pIndex + 1));
+      } while (room.grid[y][x] !== 0);
+
+      // Position
+      player.x = x;
+      player.y = y;
+
+      // Direction
+      if (x >= (grid.length / 2)) {
+        player.direction = 'u';
+      } else {
+        player.direction = 'd';
+      }
+
+      // Drawing on grid
+      setGrid(grid, player.x, player.y, player.id);
+    });
+  });
+
+  return players;
+}
+
+function start(room) {
+  // Grid
+  const width = randomInt(conf.grid.w.min, conf.grid.w.max);
+  const height = randomInt(conf.grid.h.min, conf.grid.h.max);
+
+  room.grid = Array(height).fill().map(() => Array(width).fill(0));
+
+  // Obstacles
+  const amount = testMode ? 0 : randomInt(conf.ob.amount.min, conf.ob.amount.max);
+  const obstacles = setObstacles(amount, room.grid);
+
+  // Players
+  const players = setPlayers(room, room.grid);
+
+  // Emit info to clients
   const roomID = getRoomID(room);
 
   getSockets(room).forEach((socket) => {
     socket.emit('start', {
       players,
       obstacles,
-      w,
-      h,
+      w: width,
+      h: height,
       me: socket.state.id,
     });
   });
@@ -166,23 +181,15 @@ function start(room) {
   io.to(roomID).emit('nextMove', []);
 }
 
-function isEmpty(grid, x, y) {
-  return y >= 0 && x >= 0 &&
-         y < grid.length && x < grid[y].length &&
-         grid[y][x] === 0;
-}
-
 function step(room) {
-  let aliveTeams = getAliveTeams(room);
-
-  // Stop if less than 2 teams are alive
-  if (aliveTeams.length < 2) {
+  // Abort if less than 2 teams left
+  if (getTeams(room, true).length < 2) {
     return;
   }
 
   const players = getPlayers(room);
 
-  // Position update
+  // Position
   players.forEach((p) => {
     switch (p.direction) {
       case 'u': p.y -= 1; break;
@@ -194,33 +201,37 @@ function step(room) {
   });
 
   // Collisions
-  // TODO Improve this horrible solution
-  players.forEach((player) => {
-    let samePosPlayers = players.filter((p) =>
-      player.x === p.x && player.y === p.y
+  const cPlayers = players.slice();
+
+  cPlayers.forEach((player, index, arr) => {
+    const colPlayers = arr.filter(p =>
+      p.x === player.x && p.y === player.y
     );
 
-    if (samePosPlayers > 1) { // Collision between players
-      /*
-      samePosPlayers.forEach((p) => {
+    if (colPlayers > 1) {
+      // Collision between players
+      colPlayers.forEach((p) => {
         p.dead = true;
+        arr.splice(index, 1);
       });
-      */
-      setGrid(room.grid, player.x, player.y, -2);
 
+      setGrid(room.grid, player.x, player.y, -2);
+    } else if (getGrid(room.grid, player.x, player.y) !== 0) {
+      // Collision between player and obstacle
       player.dead = true;
-    } else if (isEmpty(room.grid, player.x, player.y)) {
+      arr.splice(index, 1);
+
+      setGrid(room.grid, player.x, player.y, -2);
+    } else {
+      arr.splice(index, 1);
+
       setGrid(room.grid, player.x, player.y, player.id);
-    } else { // Collision between player and obstacle
-      setGrid(room.grid, player.x, player.y, -2);
-
-      player.dead = true;
     }
   });
 
+  // Emit info to clients
   const roomID = getRoomID(room);
 
-  // Sending player moves
   const directions = players.map(p =>
      ({
        id: p.id,
@@ -231,22 +242,22 @@ function step(room) {
   io.to(roomID).emit('nextMove', directions);
 
   // Death Management
-  aliveTeams = getAliveTeams(room);
+  const aliveTeams = getTeams(room, true);
 
   if (aliveTeams.length > 1) {
     setTimeout(() => step(room), conf.delays.default);
   } else if (aliveTeams.length === 1) {
-    let teamID = aliveTeams[0][0].state.team;
+    const teamID = aliveTeams[0][0].team;
 
     io.to(roomID).emit('end', teamID);
     kickSockets(room);
 
-    console.log(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
+    console.info(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
   } else if (aliveTeams.length === 0) {
     io.to(roomID).emit('end', false);
     kickSockets(room);
 
-    console.log(`Match ended in room: ${roomID}. Tie.`);
+    console.info(`Match ended in room: ${roomID}. Tie.`);
   }
 }
 
@@ -265,6 +276,7 @@ io.on('connection', (socket) => {
       }
 
       const team = teams[teamID];
+
       if (!team) {
         teams[teamID] = [socket];
       } else if (team.length < conf.teams.size) {
@@ -285,7 +297,7 @@ io.on('connection', (socket) => {
       direction: '',
     };
 
-    console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) joined ${roomID}`);
+    console.info(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) joined ${roomID}`);
 
     // Starts the game if all teams are full
     if (!room.grid) {
@@ -309,32 +321,34 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
-    const roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
-    const room = io.sockets.adapter.rooms[roomID];
+    const player = socket.state;
 
-    if (socket.state.team && room) {
-      const team = room.teams[socket.state.team];
+    if (player.team != null) {
+      const roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
+      const room = io.sockets.adapter.rooms[roomID];
+      const team = room.teams[player.team];
 
-      console.log(`Client ${socket.id} (id: ${socket.state.id}, team: ${socket.state.team}) left ${roomID}`);
+      console.info(`Client ${socket.id} (id: ${player.id}, team: ${player.team}) left ${roomID}`);
 
       if (!room.grid) { // Match not started
-        team.splice(team.indexOf(socket), 1); // Removes the player from his team
+        team.splice(team.indexOf(socket), 1); // Removes the player from the team
 
         if (team.length === 0) {
-          delete room.teams[socket.state.team]; // Deletes the team if empty
+          delete room.teams[player.team]; // Deletes the team if empty
         }
       } else { // Match started
-        socket.state.dead = true;
+        const aliveTeams = getTeams(room, true);
 
-        let aliveTeams = getAliveTeams(room);
+        player.dead = true;
+        setGrid(room.grid, player.x, player.y, -2);
 
         if (aliveTeams.length === 1) {
-          let teamID = aliveTeams[0][0].state.team;
+          const teamID = aliveTeams[0][0].team;
 
           io.to(roomID).emit('end', teamID);
           kickSockets(room);
 
-          console.log(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
+          console.info(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
         }
       }
     }
@@ -342,5 +356,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(conf.server.port, () => {
-  console.log(`Server listening on port ${conf.server.port}`);
+  console.info(`Server listening on port ${conf.server.port}`);
 });
