@@ -12,7 +12,7 @@ var direction = 'u';
  * @param {object} config Configuration de la grille de jeu
  */
 function start(config) {
-  console.log('Configuration: ' + config);
+  console.log(config);
 }
 
 /**
@@ -21,7 +21,7 @@ function start(config) {
  * @param {object} prevMoves Mouvements précédents des joueurs
  */
 function next(prevMoves) {
-  console.log('Mouvements: ' + prevMoves);
+  console.log(prevMoves);
 
   return direction;
 }
@@ -32,7 +32,7 @@ function next(prevMoves) {
  * @param {any} winnerID ID de l'équipe gagnante
  */
 function end(winnerID) {
-  console.log('Vainqueur(s): ' + winnerID);
+  console.log(winnerID);
 }
 
 module.exports = {

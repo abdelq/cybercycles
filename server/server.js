@@ -322,10 +322,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnecting', () => {
     const player = socket.state;
+    const roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
+    const room = io.sockets.adapter.rooms[roomID];
 
-    if (player.team != null) {
-      const roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
-      const room = io.sockets.adapter.rooms[roomID];
+    if (room && !player.team) {
       const team = room.teams[player.team];
 
       console.info(`Client ${socket.id} (id: ${player.id}, team: ${player.team}) left ${roomID}`);
