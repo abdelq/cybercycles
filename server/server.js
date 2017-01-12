@@ -60,6 +60,15 @@ function getGrid(grid, x, y) {
   return undefined;
 }
 
+function dumpGrid(grid) {
+    return grid.map(x => '|' + x.join('') + '|')
+        .join('\n')
+        .replace(/-1/g, '#')
+        .replace(/-2/g, 'x')
+        .replace(/0/g, ' ')
+        + '\n ' + grid[0].map(x => '-').join('');
+}
+
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
@@ -177,7 +186,6 @@ function start(room) {
       me: socket.state.id,
     });
   });
-
   io.to(roomID).emit('nextMove', []);
 }
 
@@ -204,7 +212,7 @@ function step(room) {
   const cPlayers = players.slice();
 
   cPlayers.forEach((player, index, arr) => {
-    const colPlayers = arr.filter(p =>
+    const colPlayers = arr.slice(index).filter(p =>
       p.x === player.x && p.y === player.y
     );
 
@@ -212,19 +220,15 @@ function step(room) {
       // Collision between players
       colPlayers.forEach((p) => {
         p.dead = true;
-        arr.splice(index, 1);
       });
 
       setGrid(room.grid, player.x, player.y, -2);
     } else if (getGrid(room.grid, player.x, player.y) !== 0) {
       // Collision between player and obstacle
       player.dead = true;
-      arr.splice(index, 1);
 
       setGrid(room.grid, player.x, player.y, -2);
     } else {
-      arr.splice(index, 1);
-
       setGrid(room.grid, player.x, player.y, player.id);
     }
   });
@@ -240,6 +244,10 @@ function step(room) {
   );
 
   io.to(roomID).emit('nextMove', directions);
+
+  if(testMode) {
+      console.log(dumpGrid(room.grid));
+  }
 
   // Death Management
   const aliveTeams = getTeams(room, true);
