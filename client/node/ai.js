@@ -1,6 +1,6 @@
 /* Configuration */
-var room;
-var team;
+const room = '';
+const team = '';
 
 /* Déplacement de l'A.I. */
 var direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
