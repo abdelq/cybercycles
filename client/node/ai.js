@@ -1,10 +1,9 @@
-// Config
+/* Configuration */
 var room;
 var team;
 
-// Déplacement de l'A.I.
-// Peut être: 'u', 'l', 'd', 'r'
-var direction = 'u';
+/* Déplacement de l'A.I. */
+var direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
 
 /**
  * Fonction appelée en début de partie.
@@ -19,6 +18,7 @@ function start(config) {
  * Fonction appelée à chaque tour de jeu.
  *
  * @param {object} prevMoves Mouvements précédents des joueurs
+ * @returns {string} Mouvement à effectuer
  */
 function next(prevMoves) {
   console.log(prevMoves);
@@ -29,12 +29,11 @@ function next(prevMoves) {
 /**
  * Fonction appelée en fin de partie.
  *
- * @param {any} winnerID ID de l'équipe gagnante
+ * @param {string} winnerID ID de l'équipe gagnante
  */
 function end(winnerID) {
   console.log(winnerID);
 }
 
-module.exports = {
-  room, team, start, next, end,
-};
+// Ne pas modifier
+module.exports = { room, team, start, next, end };
