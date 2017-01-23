@@ -6,7 +6,7 @@ const config = require('./config');
 
 io.on('connection', (socket) => {
   socket.on('join', (roomID, teamID) => {
-    // roomID = String(roomID) || 'null';
+    roomID = String(roomID) || 'null';
     socket.join(roomID);
 
     let room = io.sockets.adapter.rooms[roomID];
@@ -45,30 +45,55 @@ io.on('connection', (socket) => {
 
     // Starts the game
     const fullTeams = Object.keys(teams).filter(id =>
-      teams[id].length === config.teams.size
-    );
+        teams[id].length === config.teams.size
+        );
 
     if (fullTeams.length === config.teams.amount) {
+      // TODO Manage game start and next
       // start(room);
       // setTimeout(() => step(room), config.delay.initial);
+
       console.log(`Game started in room ${roomID}`);
     }
   });
 
   socket.on('move', (direction) => {
     if ('uldr'.indexOf(direction) !== -1) {
-      // if socket.player?
       socket.player.direction = direction;
     }
   });
 
   socket.on('disconnecting', () => {
-    //let roomID = Object.keys(socket.rooms).find(id => id !== socket.id); // TODO Update this
+    let roomID = Object.keys(socket.rooms).find(id => id != socket.id);
     let room = io.sockets.adapter.rooms[roomID];
 
     if (socket.player) {
       if (room.grid) { // Match already started
+        // TODO What
+        // socket.player.dead = true;
+        // setGrid(room.grid, player.x, player.y, -2);
+        // const aliveTeams = getTeams(room, true);
+
+        /*
+           if (aliveTeams.length === 1) {
+           const teamID = aliveTeams[0][0].team;
+
+           io.to(roomID).emit('end', teamID);
+           kickSockets(room);
+
+           console.info(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
+           }
+           */
       } else { // Match not yet started
+        let team = room.teams[socket.player.team];
+
+        // Removes the player from the team
+        team.splice(team.indexOf(socket), 1);
+
+        // Deletes the team if empty
+        if (team.length === 0) {
+          delete room.teams[socket.player.team];
+        }
       }
 
       console.log(`Player ${socket.id} (ID: ${socket.player.id}, Team: ${socket.player.team}) left ${roomID}`);
