@@ -1,21 +1,29 @@
-const io = require('socket.io-client');
-const ai = require('./ai');
+var io = require('socket.io-client');
+var ai = require('./ai');
 
-const socket = io('http://localhost:1337');
+var socket = io('http://localhost:1337');
 
-socket.on('connect', () => {
+socket.on('connect', function () {
   socket.emit('join', ai.room, ai.team);
 });
 
-socket.on('start', (config) => {
+socket.on('start', function (config) {
   ai.start(config);
 });
 
-socket.on('nextMove', (prevMoves) => {
+socket.on('next', function (prevMoves) {
   socket.emit('move', ai.next(prevMoves));
 });
 
-socket.on('end', (teamID) => {
-  ai.end(teamID);
+socket.on('view', function (grid) {
+  console.log(grid);
+});
+
+socket.on('end', function (winnerID) {
+  ai.end(winnerID);
+  process.exit();
+});
+
+socket.on('disconnect', function () {
   process.exit();
 });

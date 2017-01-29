@@ -1,22 +1,22 @@
 const server = {
-  port: 1337,
   homepage: 'http://hackathon.iro.umontreal.ca',
+  port: 1337,
 };
 
-const delays = {
-  init: 400,
+const delay = {
+  initial: 400,
   default: 200,
 };
 
 const grid = {
-  w: { min: 30, max: 40 },
-  h: { min: 20, max: 30 },
+  width: { min: 30, max: 40 },
+  height: { min: 20, max: 30 },
 };
 
 const obstacles = {
   amount: { min: 2, max: 6 },
-  w: { min: 2, max: 6 },
-  h: { min: 2, max: 6 },
+  width: { min: 2, max: 6 },
+  height: { min: 2, max: 6 },
   symetrical: true,
 };
 
@@ -27,8 +27,8 @@ const teams = {
 
 module.exports = {
   server,
-  delays,
+  delay,
   grid,
   ob: obstacles,
-  teams,
+  teams
 };
