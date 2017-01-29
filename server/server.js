@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = module.exports = require('socket.io')(server);
+
+const game = require('./game');
 const config = require('./config');
 
 io.on('connection', (socket) => {
@@ -14,19 +16,18 @@ io.on('connection', (socket) => {
 
     // Match already started
     if (room.grid) {
+      console.log(`Spectator ${socket.id} joined ${roomID}`);
       return;
     }
 
-    let playerID = Object.keys(teams).length + 1;
-    teamID = String(teamID) || String(playerID);
+    let playerID = String(Object.keys(teams).length + 1);
+    teamID = String(teamID) || playerID;
 
     // Team and Player managment
     if (Object.keys(teams).length < config.teams.amount) {
       let team = teams[teamID] || (teams[teamID] = []);
 
       if (team.length < config.teams.size) {
-        team.push(socket);
-
         socket.player = {
           id: playerID,
           team: teamID,
@@ -34,6 +35,8 @@ io.on('connection', (socket) => {
           y: 0,
           direction: '',
         };
+
+        team.push(socket.player);
       }
     }
 
@@ -44,14 +47,11 @@ io.on('connection', (socket) => {
     }
 
     // Starts the game
-    const fullTeams = Object.keys(teams).filter(id =>
-        teams[id].length === config.teams.size
-        );
+    const fullTeams = Object.keys(teams).filter(id => teams[id].length === config.teams.size);
 
     if (fullTeams.length === config.teams.amount) {
-      // TODO Manage game start and next
-      // start(room);
-      // setTimeout(() => step(room), config.delay.initial);
+      game.start(room);
+      setTimeout(() => game.step(room), config.delay.initial);
 
       console.log(`Game started in room ${roomID}`);
     }
@@ -64,39 +64,38 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
-    let roomID = Object.keys(socket.rooms).find(id => id != socket.id);
+    let roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
     let room = io.sockets.adapter.rooms[roomID];
 
+    if (!room) {
+      return;
+    }
+
     if (socket.player) {
+      console.log(`Player ${socket.id} (ID: ${socket.player.id}, Team: ${socket.player.team}) left ${roomID}`);
+
       if (room.grid) { // Match already started
-        // TODO What
-        // socket.player.dead = true;
-        // setGrid(room.grid, player.x, player.y, -2);
-        // const aliveTeams = getTeams(room, true);
+        game.killPlayer(socket.player, room);
 
-        /*
-           if (aliveTeams.length === 1) {
-           const teamID = aliveTeams[0][0].team;
+        const aliveTeams = game.getTeams(room, true);
 
-           io.to(roomID).emit('end', teamID);
-           kickSockets(room);
+        if (aliveTeams.length === 1) {
+          const aliveTeamID = aliveTeams[0][0].team;
 
-           console.info(`Match ended in room: ${roomID}. Winners: ${teamID}.`);
-           }
-           */
+          game.endMatch(room, aliveTeamID);
+          console.info(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
+        }
       } else { // Match not yet started
         let team = room.teams[socket.player.team];
 
         // Removes the player from the team
-        team.splice(team.indexOf(socket), 1);
+        team.splice(team.indexOf(socket.player), 1);
 
         // Deletes the team if empty
         if (team.length === 0) {
           delete room.teams[socket.player.team];
         }
       }
-
-      console.log(`Player ${socket.id} (ID: ${socket.player.id}, Team: ${socket.player.team}) left ${roomID}`);
     } else {
       console.log(`Spectator ${socket.id} left ${roomID}`);
     }

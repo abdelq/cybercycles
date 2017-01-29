@@ -23,3 +23,7 @@ socket.on('end', function (winnerID) {
   ai.end(winnerID);
   process.exit();
 });
+
+socket.on('disconnect', function () {
+  process.exit();
+});

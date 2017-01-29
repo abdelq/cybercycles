@@ -25,4 +25,10 @@ const teams = {
   size: 1,
 };
 
-module.exports = { server, delay, grid, ob: obstacles, teams };
+module.exports = {
+  server,
+  delay,
+  grid,
+  ob: obstacles,
+  teams
+};
