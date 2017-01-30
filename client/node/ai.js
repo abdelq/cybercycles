@@ -18,7 +18,7 @@ function start(config) {
  * Fonction appelée à chaque tour de jeu.
  *
  * @param {object} prevMoves Mouvements précédents des joueurs
- * @returns {string} Mouvement à effectuer
+ * @return {string} Mouvement à effectuer
  */
 function next(prevMoves) {
   console.log(prevMoves);
