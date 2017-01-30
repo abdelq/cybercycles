@@ -3,7 +3,7 @@ const room = '';
 const team = '';
 
 /* Déplacement de l'A.I. */
-var direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
+let direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
 
 /**
  * Fonction appelée en début de partie.
