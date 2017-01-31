@@ -10,12 +10,13 @@ import java.net.URISyntaxException;
 public class Tron {
   public static void main (String[] args) throws URISyntaxException {
     final Socket socket = IO.socket("http://localhost:1337");
+    final AI ai = new AI();
 
     socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 
       @Override
       public void call(Object... args) {
-        socket.emit("join", AI.ROOM, AI.TEAM);
+        socket.emit("join", ai.ROOM, ai.TEAM);
       }
 
     }).on("start", new Emitter.Listener() {
@@ -23,7 +24,7 @@ public class Tron {
       @Override
       public void call(Object... args) {
         JSONObject config = (JSONObject) args[0];
-        AI.start(config);
+        ai.start(config);
       }
 
     }).on("next", new Emitter.Listener() {
@@ -31,7 +32,7 @@ public class Tron {
       @Override
       public void call(Object... args) {
         JSONArray prevMoves = (JSONArray) args[0];
-        socket.emit("move", AI.next(prevMoves));
+        socket.emit("move", ai.next(prevMoves));
       }
 
     }).on("end", new Emitter.Listener() {
@@ -39,7 +40,7 @@ public class Tron {
       @Override
       public void call(Object... args) {
         String winnerID = (String) args[0];
-        AI.end(winnerID);
+        ai.end(winnerID);
         System.exit(0);
       }
 

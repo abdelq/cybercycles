@@ -5,18 +5,18 @@ import org.json.JSONObject;
 
 public class AI {
   /* Configuration */
-  public final static String ROOM = "";
-  public final static String TEAM = "";
+  public final String ROOM = "";
+  public final String TEAM = "";
 
   /* Déplacement de l'A.I. */
-  public static String direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
+  public String direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
 
   /**
    * Fonction appelée en début de partie.
    *
    * @param config Configuration de la grille de jeu
    */
-  public static void start(JSONObject config) {
+  public void start(JSONObject config) {
     System.out.println(config);
   }
 
@@ -26,7 +26,7 @@ public class AI {
    * @param prevMoves Mouvements précédents des joueurs
    * @return Mouvement à effectuer
    */
-  public static String next(JSONArray prevMoves) {
+  public String next(JSONArray prevMoves) {
     System.out.println(prevMoves);
 
     return direction;
@@ -37,7 +37,7 @@ public class AI {
    *
    * @param winnerID ID de l'équipe gagnante
    */
-  public static void end(String winnerID) {
+  public void end(String winnerID) {
     System.out.println(winnerID);
   }
 }
