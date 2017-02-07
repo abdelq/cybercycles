@@ -9,7 +9,7 @@ public class AI {
   public final String TEAM = "";
 
   /* Déplacement de l'A.I. */
-  public String direction; // Valeurs acceptées : 'u', 'l', 'd', 'r'
+  public String direction; // Valeurs acceptées : "u", "l", "d", "r"
 
   /**
    * Fonction appelée en début de partie.
