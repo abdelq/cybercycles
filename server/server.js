@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = module.exports = require('socket.io')(server);
+const io = module.exports.io = require('socket.io')(server);
 
 const game = require('./game');
 const config = require('./config');
@@ -47,9 +47,11 @@ io.on('connection', (socket) => {
     }
 
     // Starts the game
-    const fullTeams = Object.keys(teams).filter(id => teams[id].length === config.teams.size);
+    const fullTeams = Object.keys(teams).filter(
+      id => teams[id].length >= config.teams.size
+    );
 
-    if (fullTeams.length === config.teams.amount) {
+    if (fullTeams.length >= config.teams.amount) {
       game.start(room);
       setTimeout(() => game.step(room), config.delay.initial);
 
@@ -79,7 +81,7 @@ io.on('connection', (socket) => {
 
         const aliveTeams = game.getTeams(room, true);
 
-        if (aliveTeams.length === 1) {
+        if (aliveTeams.length < 2) {
           const aliveTeamID = aliveTeams[0][0].team;
 
           game.endMatch(room, aliveTeamID);

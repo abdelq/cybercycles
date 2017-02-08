@@ -1,4 +1,4 @@
-const io = require('./server');
+const io = require('./server').io;
 const config = require('./config');
 
 function getSockets(room) {
@@ -41,9 +41,7 @@ function setGrid(grid, x, y, val) {
 }
 
 function randInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function setObstacles(grid, amount) {
@@ -93,17 +91,17 @@ function setPlayers(room) {
       do {
         x = randInt(tArea * tIndex, tArea * (tIndex + 1));
         y = randInt(pArea * pIndex, pArea * (pIndex + 1));
-      } while (room.grid[y] && room.grid[y][x] !== ' ');
+      } while (room.grid[y][x] !== ' ');
 
       // Position
       player.x = x;
       player.y = y;
 
       // Direction
-      if (x > (room.grid[0].length / 2)) {
-        player.direction = 'l';
+      if (y > (room.grid.length / 2)) {
+        player.direction = 'u';
       } else {
-        player.direction = 'r';
+        player.direction = 'd';
       }
 
       players.push(player);
@@ -163,8 +161,8 @@ function step(room) {
     return;
   }
 
-  const players = getSockets(room).filter(socket => socket.player)
-                                  .map(socket => socket.player);
+  const players = getSockets(room).map(socket => socket.player)
+                                  .filter(player => player);
 
   // Position
   players.forEach((p) => {
@@ -182,14 +180,12 @@ function step(room) {
       p => p.x === player.x && p.y === player.y
     );
 
-    if (cPlayers > 1 || (room.grid[player.y] && room.grid[player.y][player.x] !== ' ')) {
+    if (cPlayers > 1 || !room.grid[player.y] || room.grid[player.y][player.x] !== ' ') {
       killPlayer(player, room);
     } else {
       setGrid(room.grid, player.x, player.y, player.id);
     }
   });
-
-  dumpGrid(room.grid);
 
   // Emit infos
   const roomID = getRoomID(room);
@@ -206,7 +202,7 @@ function step(room) {
 
   if (aliveTeams.length > 1) {
     setTimeout(() => step(room), config.delay.default);
-  } else if (aliveTeams.length === 1) {
+  } else if (aliveTeams.length < 2) {
     const aliveTeamID = aliveTeams[0][0].team;
 
     endMatch(room, aliveTeamID);
