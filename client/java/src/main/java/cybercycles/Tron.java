@@ -17,6 +17,7 @@ public class Tron {
       @Override
       public void call(Object... args) {
         socket.emit("join", ai.ROOM, ai.TEAM);
+	System.out.println("Lien vers le match : http://localhost:1337/" + ai.ROOM);
       }
 
     }).on("start", new Emitter.Listener() {
