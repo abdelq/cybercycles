@@ -2,16 +2,6 @@ const io = require('./server').io;
 const config = require('./config');
 
 /**
- * Lists the sockets present in a room
- *
- * @param {object} room Room
- * @return {object} List of sockets
- */
-function getSockets(room) {
-  return Object.keys(room.sockets).map(id => io.sockets.connected[id]);
-}
-
-/**
  * Returns the room ID of a room
  *
  * @param {object} room Room
@@ -20,6 +10,27 @@ function getSockets(room) {
 function getRoomID(room) {
   const rooms = io.sockets.adapter.rooms;
   return Object.keys(rooms).find(id => rooms[id] === room);
+}
+
+/**
+ * Generates a pseudorandom integer, between two values.
+ *
+ * @param {number} min Minimal value
+ * @param {number} max Maximal value
+ * @return {number} Generated integer
+ */
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+/**
+ * Lists the sockets present in a room
+ *
+ * @param {object} room Room
+ * @return {object} List of sockets
+ */
+function getSockets(room) {
+  return Object.keys(room.sockets).map(id => io.sockets.connected[id]);
 }
 
 /**
@@ -46,6 +57,17 @@ function getTeams(room, alive) {
 }
 
 /**
+ * Marks a player as dead.
+ *
+ * @param {object} player Player
+ * @param {object} room Room
+ */
+function killPlayer(player, room) {
+  player.dead = true;
+  setGrid(room.grid, player.x, player.y, 'X');
+}
+
+/**
  * Declares the match as ended, kicking all sockets from the room.
  *
  * @param {object} room Room
@@ -56,17 +78,6 @@ function endMatch(room, teamID) {
 
   io.to(roomID).emit('end', teamID);
   getSockets(room).forEach(socket => socket.leave(roomID));
-}
-
-/**
- * Marks a player as dead.
- *
- * @param {object} player Player
- * @param {object} room Room
- */
-function killPlayer(player, room) {
-  player.dead = true;
-  setGrid(room.grid, player.x, player.y, 'X');
 }
 
 /**
@@ -81,17 +92,6 @@ function setGrid(grid, x, y, val) {
   if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
     grid[y][x] = val;
   }
-}
-
-/**
- * Generates a pseudorandom integer, between two values.
- *
- * @param {number} min Minimal value
- * @param {number} max Maximal value
- * @return {number} Generated integer
- */
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 /**
