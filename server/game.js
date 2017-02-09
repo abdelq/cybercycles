@@ -24,15 +24,14 @@ function randInt(min, max) {
 }
 
 /**
- * Prints a grid.
+ * Converts a grid to its string representation.
  *
  * @param {object} grid Grid
+ * @return {string} Grid
  */
-function printGrid(grid) {
-  let textGrid = grid.map(y => '|' + y.join('') + '|').join('\n') + '\n'
-		 + '—' + grid[0].map(x => '—').join('') + '—';
-
-  console.log(textGrid);
+function dumpGrid(grid) {
+  return grid.map(y => '|' + y.join('') + '|').join('\n') +
+    '\n—' + grid[0].map(x => '—').join('') + '—';
 }
 
 /**
@@ -281,8 +280,6 @@ function step(room) {
   }));
 
   io.to(roomID).emit('next', directions);
-
-  printGrid(room.grid);
 
   // Death Management
   const aliveTeams = getTeams(room, true);
