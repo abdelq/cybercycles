@@ -32,8 +32,9 @@ function randInt(min, max) {
  * @return {string} Grid
  */
 function dumpGrid(grid) {
-  return grid.map(y => '|' + y.join('') + '|').join('\n') +
-    '\n—' + grid[0].map(x => '—').join('') + '—';
+  return '—' + grid[0].map(x => '—').join('') + '—\n' +
+      grid.map(y => '|' + y.join('') + '|').join('\n') +
+      '\n—' + grid[0].map(x => '—').join('') + '—\n';
 }
 
 /**
@@ -234,6 +235,13 @@ function start(room) {
   });
 
   io.to(roomID).emit('next', []);
+
+  // Save for playback
+  fs.appendFile(`saves/${roomID}.txt`, `\n\n`, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
 }
 
 /**
@@ -282,6 +290,13 @@ function step(room) {
   }));
 
   io.to(roomID).emit('next', directions);
+
+  // Save for playback
+  fs.appendFile(`saves/${roomID}.txt`, `${dumpGrid(room.grid)}\n`, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
 
   // Death Management
   const aliveTeams = getTeams(room, true);
