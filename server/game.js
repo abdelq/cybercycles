@@ -1,27 +1,56 @@
 const io = require('./server').io;
 const config = require('./config');
 
+/**
+ * Lists the sockets present in a room
+ *
+ * @param {object} room Room
+ * @return {object} List of sockets
+ */
 function getSockets(room) {
   return Object.keys(room.sockets).map(id => io.sockets.connected[id]);
 }
 
+/**
+ * Returns the room ID of a room
+ *
+ * @param {object} room Room
+ * @return {string} Room ID
+ */
 function getRoomID(room) {
   const rooms = io.sockets.adapter.rooms;
   return Object.keys(rooms).find(id => rooms[id] === room);
 }
 
+/**
+ * Lists all of the teams in a room, or only the ones alive or dead.
+ *
+ * @param {object} room Room
+ * @param {boolean} alive Alive or not (optional)
+ * @return {object} List of teams
+ */
 function getTeams(room, alive) {
   const teams = Object.keys(room.teams).map(id => room.teams[id]);
 
-  if (alive) {
+  if (alive === true) {
     return teams.filter(team =>
       team.find(player => !player.dead)
+    );
+  } else if (alive === false) {
+    return teams.filter(team =>
+      team.find(player => player.dead)
     );
   }
 
   return teams;
 }
 
+/**
+ * Declares the match as ended, kicking all sockets from the room.
+ *
+ * @param {object} room Room
+ * @param {string} teamID Team ID of the winner team
+ */
 function endMatch(room, teamID) {
   const roomID = getRoomID(room);
 
@@ -29,21 +58,49 @@ function endMatch(room, teamID) {
   getSockets(room).forEach(socket => socket.leave(roomID));
 }
 
+/**
+ * Marks a player as dead.
+ *
+ * @param {object} player Player
+ * @param {object} room Room
+ */
 function killPlayer(player, room) {
   player.dead = true;
   setGrid(room.grid, player.x, player.y, 'X');
 }
 
+/**
+ * Sets a value in a grid's cell.
+ *
+ * @param {object} grid Grid
+ * @param {number} x Position in the X axis
+ * @param {number} y Position in the Y axis
+ * @param {string} val Value to set
+ */
 function setGrid(grid, x, y, val) {
   if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
     grid[y][x] = val;
   }
 }
 
+/**
+ * Generates a pseudorandom integer, between two values.
+ *
+ * @param {number} min Minimal value
+ * @param {number} max Maximal value
+ * @return {number} Generated integer
+ */
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+/**
+ * Sets and returns a list of the generated obstacles' coordinates.
+ *
+ * @param {object} grid Grid
+ * @param {number} amount Amount of obstacles
+ * @return {object} List of obstacle coordinates
+ */
 function setObstacles(grid, amount) {
   const obstacles = [];
 
@@ -77,6 +134,12 @@ function setObstacles(grid, amount) {
   return obstacles;
 }
 
+/**
+ * Sets the position and direction of players in a grid.
+ *
+ * @param {object} room Room
+ * @return {object} List of players
+ */
 function setPlayers(room) {
   const players = [];
 
@@ -111,6 +174,11 @@ function setPlayers(room) {
   return players;
 }
 
+/**
+ * Starts the game.
+ *
+ * @param {object} room Room
+ */
 function start(room) {
   // Grid
   const width = randInt(config.grid.width.min, config.grid.width.max);
@@ -155,6 +223,11 @@ function start(room) {
   io.to(roomID).emit('next', []);
 }
 
+/**
+ * Updates the game's state.
+ *
+ * @param {object} room Room
+ */
 function step(room) {
   // Abort if less than 2 teams left
   if (getTeams(room, true).length < 2) {
@@ -208,7 +281,7 @@ function step(room) {
     endMatch(room, aliveTeamID);
     console.info(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
   } else {
-    endMatch(room, false);
+    endMatch(room, '');
     console.info(`Match ended in room: ${roomID}. Tie.`);
   }
 }
