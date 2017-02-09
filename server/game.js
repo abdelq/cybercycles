@@ -236,8 +236,15 @@ function start(room) {
 
   io.to(roomID).emit('next', []);
 
+  const header = players.map((player) => {
+      return player.id + ': team ' + player.team;
+  }).join('\n') + '\n';
+
   // Save for playback
-  fs.appendFile(`saves/${roomID}.txt`, `\n\n`, (err) => {
+  const ts = Math.floor(new Date() / 1000);
+  room.saveFile = `saves/${roomID}-${ts}`;
+    
+  fs.appendFile(room.saveFile, header, (err) => {
     if (err) {
       console.log(err);
     }
@@ -292,7 +299,7 @@ function step(room) {
   io.to(roomID).emit('next', directions);
 
   // Save for playback
-  fs.appendFile(`saves/${roomID}.txt`, `${dumpGrid(room.grid)}\n`, (err) => {
+  fs.appendFile(room.saveFile, `${dumpGrid(room.grid)}\n`, (err) => {
     if (err) {
       console.log(err);
     }
