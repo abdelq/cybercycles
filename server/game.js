@@ -24,6 +24,18 @@ function randInt(min, max) {
 }
 
 /**
+ * Prints a grid.
+ *
+ * @param {object} grid Grid
+ */
+function printGrid(grid) {
+  let textGrid = grid.map(y => '|' + y.join('') + '|').join('\n') + '\n'
+		 + '—' + grid[0].map(x => '—').join('') + '—';
+
+  console.log(textGrid);
+}
+
+/**
  * Lists the sockets present in a room
  *
  * @param {object} room Room
@@ -269,6 +281,8 @@ function step(room) {
   }));
 
   io.to(roomID).emit('next', directions);
+
+  printGrid(room.grid);
 
   // Death Management
   const aliveTeams = getTeams(room, true);
