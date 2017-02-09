@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const io = require('./server').io;
 const config = require('./config');
 
@@ -286,14 +288,14 @@ function step(room) {
 
   if (aliveTeams.length > 1) {
     setTimeout(() => step(room), config.delay.default);
-  } else if (aliveTeams.length < 2) {
+  } else if (aliveTeams.length === 1) {
     const aliveTeamID = aliveTeams[0][0].team;
 
     endMatch(room, aliveTeamID);
-    console.info(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
+    console.log(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
   } else {
     endMatch(room, '');
-    console.info(`Match ended in room: ${roomID}. Tie.`);
+    console.log(`Match ended in room: ${roomID}. Tie.`);
   }
 }
 
