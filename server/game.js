@@ -240,14 +240,13 @@ function start(room) {
 
   io.to(roomID).emit('next', []);
 
-  const header = players.map((player) => {
-      return player.id + ': team ' + player.team;
-  }).join('\n') + '\n';
-
   // Save for playback
-  const ts = Math.floor(new Date() / 1000);
-  room.saveFile = `saves/${roomID}-${ts}`;
-    
+  const header = players.map((player) => 
+    `${player.id}: team ${player.team}`
+  ).join('\n') + '\n\n';
+
+  room.saveFile = `saves/${roomID}-${Date.now()}.txt`;
+
   fs.appendFile(room.saveFile, header, (err) => {
     if (err) {
       console.log(err);
