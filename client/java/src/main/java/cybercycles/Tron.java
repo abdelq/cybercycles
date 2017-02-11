@@ -51,6 +51,7 @@ public class Tron {
 
       @Override
       public void call(Object... args) {
+        System.out.println("Vous avez été déconnecté");
         System.exit(0);
       }
 
