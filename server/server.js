@@ -14,8 +14,8 @@ io.on('connection', (socket) => {
     let room = io.sockets.adapter.rooms[roomID];
     let teams = room.teams || (room.teams = {});
 
-    // Match already started
-    if (room.grid) {
+    // Match already started or Web player
+    if (room.grid || teamID === undefined) {
       console.log(`Spectator ${socket.id} joined ${roomID}`);
       return;
     }
@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
 });
 
 /* Web */
-app.use(express.static('public'));
+app.use('/public', express.static('public'));
 
 app.get('/', (req, res) => res.redirect(config.server.homepage));
 
