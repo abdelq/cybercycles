@@ -32,14 +32,18 @@ socket.on('next', function(prevMoves, prevGrid) {
 
     // Grid
     for (var i = 0; i <= grid.length; i += 1) {
+      ctx.beginPath();
       ctx.moveTo(0, cellHeight * i);
       ctx.lineTo(canvas.width, cellHeight * i);
+      ctx.closePath();
       ctx.stroke();
     }
 
     for (var i = 0; i <= grid[0].length; i += 1) {
+      ctx.beginPath();
       ctx.moveTo(cellWidth * i, 0);
       ctx.lineTo(cellWidth * i, canvas.height);
+      ctx.closePath();
       ctx.stroke();
     }
 
