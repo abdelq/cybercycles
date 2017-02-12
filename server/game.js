@@ -33,8 +33,8 @@ function randInt(min, max) {
  */
 function dumpGrid(grid) {
   return '—' + grid[0].map(x => '—').join('') + '—\n' +
-      grid.map(y => '|' + y.join('') + '|').join('\n') +
-      '\n—' + grid[0].map(x => '—').join('') + '—\n';
+    grid.map(y => '|' + y.join('') + '|').join('\n') +
+    '\n—' + grid[0].map(x => '—').join('') + '—\n';
 }
 
 /**
@@ -163,17 +163,17 @@ function setPlayers(room) {
 
   getTeams(room).forEach((team, tIndex) => {
     team.forEach((player, pIndex) => {
-      let x; let y;
+      let x;
+      let y;
 
-      // TODO Review logic
       do {
         x = randInt(tArea * tIndex, tArea * (tIndex + 1));
         y = randInt(pArea * pIndex, pArea * (pIndex + 1));
       } while (room.grid[y][x] !== ' ' &&
-	       room.grid[y][x - 1] !== '#' &&
-	       room.grid[y][x + 1] !== '#' &&
-	       room.grid[y - 1][x] !== '#' &&
-	       room.grid[y + 1][x] !== '#');
+        (room.grid[y][x - 1] === '#' ||
+          room.grid[y][x + 1] === '#' ||
+          room.grid[y - 1][x] === '#' ||
+          room.grid[y + 1][x] === '#'));
 
       // Position
       player.x = x;
@@ -219,7 +219,7 @@ function start(room) {
 
   // Players
   const players = setPlayers(room);
-  
+
   players.forEach((player) => {
     setGrid(room.grid, player.x, player.y, player.id);
   });
@@ -242,7 +242,7 @@ function start(room) {
   io.to(roomID).emit('next', [], room.grid);
 
   // Save for playback
-  const header = players.map((player) => 
+  const header = players.map((player) =>
     `${player.id}: team ${player.team}`
   ).join('\n') + '\n\n';
 
@@ -267,15 +267,23 @@ function step(room) {
   }
 
   const players = getSockets(room).map(socket => socket.player)
-                                  .filter(player => player);
+    .filter(player => player);
 
   // Position
   players.forEach((p) => {
     switch (p.direction) {
-      case 'u': p.y -= 1; break;
-      case 'l': p.x -= 1; break;
-      case 'd': p.y += 1; break;
-      case 'r': p.x += 1; break;
+      case 'u':
+        p.y -= 1;
+        break;
+      case 'l':
+        p.x -= 1;
+        break;
+      case 'd':
+        p.y += 1;
+        break;
+      case 'r':
+        p.x += 1;
+        break;
     }
   });
 
