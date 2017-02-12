@@ -165,6 +165,7 @@ function setPlayers(room) {
     team.forEach((player, pIndex) => {
       let x; let y;
 
+      // TODO Review logic
       do {
         x = randInt(tArea * tIndex, tArea * (tIndex + 1));
         y = randInt(pArea * pIndex, pArea * (pIndex + 1));
@@ -238,7 +239,7 @@ function start(room) {
     }
   });
 
-  io.to(roomID).emit('next', []);
+  io.to(roomID).emit('next', [], room.grid);
 
   // Save for playback
   const header = players.map((player) => 
@@ -299,7 +300,7 @@ function step(room) {
     direction: p.direction,
   }));
 
-  io.to(roomID).emit('next', directions);
+  io.to(roomID).emit('next', directions, room.grid);
 
   // Save for playback
   fs.appendFile(room.saveFile, `${dumpGrid(room.grid)}\n`, (err) => {
