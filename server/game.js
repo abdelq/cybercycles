@@ -308,7 +308,8 @@ function step(room) {
     direction: p.direction,
   }));
 
-  io.to(roomID).emit('next', directions, room.grid);
+  io.to(roomID).emit('next', directions);
+  io.to(roomID).emit('draw', room.grid, players);
 
   // Save for playback
   fs.appendFile(room.saveFile, `${dumpGrid(room.grid)}\n`, (err) => {

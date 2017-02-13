@@ -50,7 +50,9 @@ function drawObstacles(grid) {
   }
 }
 
-function drawPlayers(grid) {
+const teamColors = ['#F00', '#00F', '#0F0', '#FF0', '#F0F', '#0FF'];
+
+function drawPlayers(grid, teams) {
   for (var i = 0; i < grid.length; i += 1) {
     for (var j = 0; j < grid[0].length; j += 1) {
       if (grid[i][j] === 'X') {
@@ -58,13 +60,26 @@ function drawPlayers(grid) {
 
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
       } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
-        if (grid[i][j] % 2 === 0) {
-          ctx.fillStyle = 'rgba(' + Math.round(255 - 21.25 * grid[i][j]) + ', 0, 0, 1.0)';
-        } else {
-          ctx.fillStyle = 'rgba(0, 0, ' + Math.round(255 - 21.25 * grid[i][j]) + ', 1.0)';
-        }
+        const playerID = +grid[i][j];
+        let playerIndex, team;
+        
+        Object.keys(teams).forEach((id) => {
+          let index = teams[id].indexOf(String(playerID));
+          if(index !== -1) {
+            team = id;
+            playerIndex = index;
+          }
+        });
 
+        let teamIndex = Object.keys(teams).indexOf(team);
+          
+        const color = teamColors[teamIndex % teamColors.length];
+
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 1 - (0.3 * playerIndex);
+          
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
+        ctx.globalAlpha = 1;
       }
     }
   }
@@ -74,7 +89,15 @@ socket.on('connect', function() {
   socket.emit('join', room);
 });
 
-socket.on('next', function(prevMoves, prevGrid) {
+socket.on('draw', function(prevGrid, players) {
+  const teams = {};
+  players.forEach((p) => {
+    if(!teams[p.team])
+      teams[p.team] = [p.id];
+    else
+      teams[p.team].push(p.id);
+  });
+
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellHeight = canvas.height / prevGrid.length;
@@ -87,7 +110,7 @@ socket.on('next', function(prevMoves, prevGrid) {
   }
 
   // Update
-  drawPlayers(prevGrid);
+  drawPlayers(prevGrid, teams);
 });
 
 socket.on('end', function(winnerID) {
