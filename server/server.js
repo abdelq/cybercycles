@@ -14,30 +14,35 @@ io.on('connection', (socket) => {
     let room = io.sockets.adapter.rooms[roomID];
     let teams = room.teams || (room.teams = {});
 
+    if(!room.nbPlayers)
+      room.nbPlayers = 0;
+
     // Match already started or Web player
     if (room.grid || teamID === undefined) {
       console.log(`Spectator ${socket.id} joined ${roomID}`);
       return;
     }
 
-    let playerID = String(Object.keys(teams).length + 1);
+    let playerID = String(++room.nbPlayers);
     teamID = String(teamID) || playerID;
 
     // Team and Player managment
-    if (Object.keys(teams).length < config.teams.amount) {
-      let team = teams[teamID] || (teams[teamID] = []);
+    let team = teams[teamID];
 
-      if (team.length < config.teams.size) {
-        socket.player = {
-          id: playerID,
-          team: teamID,
-          x: 0,
-          y: 0,
-          direction: '',
-        };
+    if(!team && Object.keys(teams).length < config.teams.amount) {
+      team = (teams[teamID] = []);
+    }
+    
+    if (team && team.length < config.teams.size) {
+      socket.player = {
+        id: playerID,
+        team: teamID,
+        x: 0,
+        y: 0,
+        direction: '',
+      };
 
-        team.push(socket.player);
-      }
+      team.push(socket.player);
     }
 
     if (socket.player) {
@@ -107,10 +112,12 @@ io.on('connection', (socket) => {
 /* Web */
 app.use('/public', express.static('public'));
 
-app.get('/', (req, res) => res.redirect(config.server.homepage));
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 
 app.get('/:room', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/room.html');
 });
 
 /* Sockets */
