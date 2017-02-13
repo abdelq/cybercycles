@@ -53,7 +53,11 @@ function drawObstacles(grid) {
 function drawPlayers(grid) {
   for (var i = 0; i < grid.length; i += 1) {
     for (var j = 0; j < grid[0].length; j += 1) {
-      if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
+      if (grid[i][j] === 'X') {
+        ctx.fillStyle = 'gray';
+
+        ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
+      } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
         if (grid[i][j] % 2 === 0) {
           ctx.fillStyle = 'rgba(' + Math.round(255 - 21.25 * grid[i][j]) + ', 0, 0, 1.0)';
         } else {
