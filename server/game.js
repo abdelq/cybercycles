@@ -240,6 +240,7 @@ function start(room) {
   });
 
   io.to(roomID).emit('next', [], room.grid);
+  io.to(roomID).emit('draw', room.grid, players);
 
   // Save for playback
   const header = players.map((player) =>

@@ -14,13 +14,14 @@ io.on('connection', (socket) => {
     let room = io.sockets.adapter.rooms[roomID];
     let teams = room.teams || (room.teams = {});
 
-    if(!room.nbPlayers)
-      room.nbPlayers = 0;
-
     // Match already started or Web player
     if (room.grid || teamID === undefined) {
       console.log(`Spectator ${socket.id} joined ${roomID}`);
       return;
+    }
+
+    if (!room.nbPlayers) {
+      room.nbPlayers = 0;
     }
 
     let playerID = String(++room.nbPlayers);
@@ -29,10 +30,10 @@ io.on('connection', (socket) => {
     // Team and Player managment
     let team = teams[teamID];
 
-    if(!team && Object.keys(teams).length < config.teams.amount) {
+    if (!team && Object.keys(teams).length < config.teams.amount) {
       team = (teams[teamID] = []);
     }
-    
+
     if (team && team.length < config.teams.size) {
       socket.player = {
         id: playerID,
@@ -113,7 +114,7 @@ io.on('connection', (socket) => {
 app.use('/public', express.static('public'));
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.get('/:room', (req, res) => {

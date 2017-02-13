@@ -12,6 +12,9 @@ canvas.height = parent.innerHeight * 0.92;
 var cellHeight;
 var cellWidth;
 
+var teams = {};
+var teamColors = ['#f00', '#00f', '#0f0', '#ff0', '#f0f', '#0ff'];
+
 function drawGrid(grid) {
   ctx.strokeStyle = ctx.fillStyle = 'rgba(24, 202, 230, .75)';
   ctx.shadowColor = 'rgba(21, 171, 195, 0.5)';
@@ -50,8 +53,6 @@ function drawObstacles(grid) {
   }
 }
 
-const teamColors = ['#F00', '#00F', '#0F0', '#FF0', '#F0F', '#0FF'];
-
 function drawPlayers(grid, teams) {
   for (var i = 0; i < grid.length; i += 1) {
     for (var j = 0; j < grid[0].length; j += 1) {
@@ -60,24 +61,25 @@ function drawPlayers(grid, teams) {
 
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
       } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
-        const playerID = +grid[i][j];
+        var playerID = +grid[i][j];
         let playerIndex, team;
-        
-        Object.keys(teams).forEach((id) => {
+
+        Object.keys(teams).forEach(function(id) {
           let index = teams[id].indexOf(String(playerID));
-          if(index !== -1) {
+
+          if (index !== -1) {
             team = id;
             playerIndex = index;
           }
         });
 
         let teamIndex = Object.keys(teams).indexOf(team);
-          
-        const color = teamColors[teamIndex % teamColors.length];
+
+        var color = teamColors[teamIndex % teamColors.length];
 
         ctx.fillStyle = color;
         ctx.globalAlpha = 1 - (0.3 * playerIndex);
-          
+
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
         ctx.globalAlpha = 1;
       }
@@ -90,30 +92,31 @@ socket.on('connect', function() {
 });
 
 socket.on('draw', function(prevGrid, players) {
-  const teams = {};
-  players.forEach((p) => {
-    if(!teams[p.team])
-      teams[p.team] = [p.id];
-    else
-      teams[p.team].push(p.id);
-  });
-  
-  const teamNames = Object.keys(teams);
-  let html = "| ";
 
-  teamNames.forEach((name, idx) => {
-    html += '<span style="color: ' + teamColors[idx % teamColors.length] + '">' + name + '</span> | ';
-  });
-
-  document.getElementById('header').innerHTML = html;
-  
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellHeight = canvas.height / prevGrid.length;
     cellWidth = canvas.width / prevGrid[0].length;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    players.forEach(function(p) {
+      if (teams[p.team])  {
+        teams[p.team].push(p.id);
+      } else {
+        teams[p.team] = [p.id];
+      }
+    });
 
+    // Header
+    let html = ' | ';
+
+    Object.keys(teams).forEach(function(name, idx) {
+      html += '<span style="color: ' + teamColors[idx % teamColors.length] + '">' + name + '</span> | ';
+    });
+
+    document.getElementById('header').innerHTML = html;
+
+    // Canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(prevGrid);
     drawObstacles(prevGrid);
   }
