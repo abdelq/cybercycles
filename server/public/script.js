@@ -6,7 +6,7 @@ document.title = "CyberCycles - " + room;
 
 // Canvas dimensions
 canvas.width = parent.innerWidth;
-canvas.height = parent.innerHeight;
+canvas.height = parent.innerHeight * 0.92;
 
 // Cell dimensions
 var cellHeight;
@@ -97,7 +97,16 @@ socket.on('draw', function(prevGrid, players) {
     else
       teams[p.team].push(p.id);
   });
+  
+  const teamNames = Object.keys(teams);
+  let html = "| ";
 
+  teamNames.forEach((name, idx) => {
+    html += '<span style="color: ' + teamColors[idx % teamColors.length] + '">' + name + '</span> | ';
+  });
+
+  document.getElementById('header').innerHTML = html;
+  
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellHeight = canvas.height / prevGrid.length;

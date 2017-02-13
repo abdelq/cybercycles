@@ -9,17 +9,26 @@
       margin: 0;
       background-color: #000;
     }
-    #infos {
-      width: 20%;
-      float: left;
-    }
+    #header {
+        width: 100%;
+        height: 8%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        text-align: center;
+        font-size: x-large;
+        color: #15ABC3;
+      }
     canvas {
+      top: 8%;
+      position: absolute;
       display: block;
     }
   </style>
 </head>
 
 <body>
+  <div id="header"></div>
   <canvas id="canvas"></canvas>
 
   <script src="public/socket.io.js"></script>
