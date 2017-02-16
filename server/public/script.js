@@ -62,10 +62,10 @@ function drawPlayers(grid, teams) {
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
       } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
         var playerID = +grid[i][j];
-        let playerIndex, team;
+        var playerIndex, team;
 
         Object.keys(teams).forEach(function(id) {
-          let index = teams[id].indexOf(String(playerID));
+          var index = teams[id].indexOf(String(playerID));
 
           if (index !== -1) {
             team = id;
@@ -73,7 +73,7 @@ function drawPlayers(grid, teams) {
           }
         });
 
-        let teamIndex = Object.keys(teams).indexOf(team);
+        var teamIndex = Object.keys(teams).indexOf(team);
 
         var color = teamColors[teamIndex % teamColors.length];
 
@@ -92,7 +92,6 @@ socket.on('connect', function() {
 });
 
 socket.on('draw', function(prevGrid, players) {
-
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellHeight = canvas.height / prevGrid.length;
@@ -107,7 +106,7 @@ socket.on('draw', function(prevGrid, players) {
     });
 
     // Header
-    let html = ' | ';
+    var html = ' | ';
 
     Object.keys(teams).forEach(function(name, idx) {
       html += '<span style="color: ' + teamColors[idx % teamColors.length] + '">' + name + '</span> | ';
