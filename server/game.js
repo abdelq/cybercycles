@@ -267,11 +267,11 @@ function step(room) {
     return;
   }
 
-  const players = getSockets(room).map(socket => socket.player)
-    .filter(player => player);
+  const players = getSockets(room).map(socket => socket.player).filter(p => p);
+  const alivePlayers = players.filter(player => !player.dead);
 
   // Position
-  players.forEach((p) => {
+  alivePlayers.forEach((p) => {
     switch (p.direction) {
       case 'u':
         p.y -= 1;
@@ -289,15 +289,15 @@ function step(room) {
   });
 
   // Collisions
-  players.forEach((player) => {
-    const cPlayers = players.slice().filter(
-      p => p.x === player.x && p.y === player.y
+  alivePlayers.forEach((alivePlayer) => {
+    const cPlayers = players.filter((player) =>
+      player.x === alivePlayer.x && player.y === alivePlayer.y
     );
 
-    if (cPlayers > 1 || !room.grid[player.y] || room.grid[player.y][player.x] !== ' ') {
-      killPlayer(player, room);
+    if (cPlayers > 1 || !room.grid[alivePlayer.y] || room.grid[alivePlayer.y][alivePlayer.x] !== ' ') {
+      killPlayer(alivePlayer, room);
     } else {
-      setGrid(room.grid, player.x, player.y, player.id);
+      setGrid(room.grid, alivePlayer.x, alivePlayer.y, alivePlayer.id);
     }
   });
 
