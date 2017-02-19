@@ -4,7 +4,7 @@ const io = require('./server').io;
 const config = require('./config');
 
 /**
- * Returns the room ID of a room
+ * Gets the room's ID from the room.
  *
  * @param {object} room Room
  * @return {string} Room ID
@@ -29,12 +29,12 @@ function randInt(min, max) {
  * Converts a grid to its string representation.
  *
  * @param {object} grid Grid
- * @return {string} Grid
+ * @return {string} Grid representation
  */
 function dumpGrid(grid) {
-  return '—' + grid[0].map(x => '—').join('') + '—\n' +
-    grid.map(y => '|' + y.join('') + '|').join('\n') +
-    '\n—' + grid[0].map(x => '—').join('') + '—\n';
+  let line = '—' + grid[0].map(x => '—').join('') + '—\n';
+
+  return line + grid.map(y => '|' + y.join('') + '|').join('\n') + line;
 }
 
 /**
@@ -140,7 +140,6 @@ function setObstacles(grid, amount) {
       };
 
       obstacles.push(obSym);
-
       i += 1;
     }
   }
@@ -239,7 +238,7 @@ function start(room) {
     }
   });
 
-  io.to(roomID).emit('next', [], room.grid);
+  io.to(roomID).emit('next', []);
   io.to(roomID).emit('draw', room.grid, players);
 
   // Save for playback
@@ -251,7 +250,15 @@ function start(room) {
 
   fs.appendFile(room.saveFile, header, (err) => {
     if (err) {
-      console.log(err);
+      if (err.code === 'ENOENT') {
+        fs.mkdir('saves', (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+      } else {
+        console.error(err);
+      }
     }
   });
 }
@@ -261,43 +268,43 @@ function start(room) {
  *
  * @param {object} room Room
  */
-function step(room) {
+function next(room) {
   // Abort if less than 2 teams left
   if (getTeams(room, true).length < 2) {
     return;
   }
 
-  const players = getSockets(room).map(socket => socket.player).filter(p => p);
+  const players = room.players;
   const alivePlayers = players.filter(player => !player.dead);
 
   // Position
-  alivePlayers.forEach((p) => {
-    switch (p.direction) {
+  alivePlayers.forEach((player) => {
+    switch (player.direction) {
       case 'u':
-        p.y -= 1;
+        player.y -= 1;
         break;
       case 'l':
-        p.x -= 1;
+        player.x -= 1;
         break;
       case 'd':
-        p.y += 1;
+        player.y += 1;
         break;
       case 'r':
-        p.x += 1;
+        player.x += 1;
         break;
     }
   });
 
   // Collisions
-  alivePlayers.forEach((alivePlayer) => {
+  alivePlayers.forEach((aPlayer) => {
     const cPlayers = players.filter((player) =>
-      player.x === alivePlayer.x && player.y === alivePlayer.y
+      player.x === aPlayer.x && player.y === aPlayer.y
     );
 
-    if (cPlayers > 1 || !room.grid[alivePlayer.y] || room.grid[alivePlayer.y][alivePlayer.x] !== ' ') {
-      killPlayer(alivePlayer, room);
+    if (cPlayers > 1 || !room.grid[aPlayer.y] || room.grid[aPlayer.y][aPlayer.x] !== ' ') {
+      killPlayer(aPlayer, room);
     } else {
-      setGrid(room.grid, alivePlayer.x, alivePlayer.y, alivePlayer.id);
+      setGrid(room.grid, aPlayer.x, aPlayer.y, aPlayer.id);
     }
   });
 
@@ -315,7 +322,7 @@ function step(room) {
   // Save for playback
   fs.appendFile(room.saveFile, `${dumpGrid(room.grid)}\n`, (err) => {
     if (err) {
-      console.log(err);
+      console.error(err);
     }
   });
 
@@ -323,21 +330,21 @@ function step(room) {
   const aliveTeams = getTeams(room, true);
 
   if (aliveTeams.length > 1) {
-    setTimeout(() => step(room), config.delay.default);
+    setTimeout(() => next(room), config.delay.default);
   } else if (aliveTeams.length === 1) {
     const aliveTeamID = aliveTeams[0][0].team;
 
     endMatch(room, aliveTeamID);
     console.log(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
   } else {
-    endMatch(room, '');
+    endMatch(room);
     console.log(`Match ended in room: ${roomID}. Tie.`);
   }
 }
 
 module.exports = {
   start,
-  step,
+  next,
   killPlayer,
   getTeams,
   endMatch

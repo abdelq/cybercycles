@@ -3,31 +3,28 @@ const app = express();
 const server = require('http').createServer(app);
 const io = module.exports.io = require('socket.io')(server);
 
-const game = require('./game');
 const config = require('./config');
+const game = require('./game');
 
 io.on('connection', (socket) => {
   socket.on('join', (roomID, teamID) => {
-    roomID = String(roomID) || 'null';
     socket.join(roomID);
 
     let room = io.sockets.adapter.rooms[roomID];
+    let players = room.players || (room.players = []);
     let teams = room.teams || (room.teams = {});
 
-    // Match already started or Web player
+    // Spectators
     if (room.grid || teamID === undefined) {
       console.log(`Spectator ${socket.id} joined ${roomID}`);
       return;
     }
 
-    if (!room.nbPlayers) {
-      room.nbPlayers = 0;
-    }
+    // Players
+    let playerID = String(room.players.length + 1);
+    teamID = teamID || playerID;
 
-    let playerID = String(++room.nbPlayers);
-    teamID = String(teamID) || playerID;
-
-    // Team and Player managment
+    // Player/Team management
     let team = teams[teamID];
 
     if (!team && Object.keys(teams).length < config.teams.amount) {
@@ -35,7 +32,7 @@ io.on('connection', (socket) => {
     }
 
     if (team && team.length < config.teams.size) {
-      socket.player = {
+      let player = socket.player = {
         id: playerID,
         team: teamID,
         x: 0,
@@ -43,31 +40,35 @@ io.on('connection', (socket) => {
         direction: '',
       };
 
-      team.push(socket.player);
+      players.push(player);
+      team.push(player);
     }
 
     if (socket.player) {
       console.log(`Player ${socket.id} (ID: ${socket.player.id}, Team: ${socket.player.team}) joined ${roomID}`);
     } else {
       console.log(`Spectator ${socket.id} joined ${roomID}`);
+      return;
     }
 
-    // Starts the game
+    // Start the game already!
     const fullTeams = Object.keys(teams).filter(
-      id => teams[id].length >= config.teams.size
+      id => teams[id].length === config.teams.size
     );
 
-    if (fullTeams.length >= config.teams.amount) {
+    if (fullTeams.length === config.teams.amount) {
       game.start(room);
-      setTimeout(() => game.step(room), config.delay.initial);
+      setTimeout(() => game.next(room), config.delay.initial);
 
       console.log(`Game started in room ${roomID}`);
     }
   });
 
   socket.on('move', (direction) => {
-    if ('uldr'.indexOf(direction) !== -1) {
-      socket.player.direction = direction;
+    let player = socket.player;
+
+    if (player && 'uldr'.indexOf(direction) !== -1) {
+      player.direction = direction;
     }
   });
 
@@ -87,21 +88,23 @@ io.on('connection', (socket) => {
 
         const aliveTeams = game.getTeams(room, true);
 
-        if (aliveTeams.length < 2) {
+        if (aliveTeams.length === 1) {
           const aliveTeamID = aliveTeams[0][0].team;
 
           game.endMatch(room, aliveTeamID);
           console.info(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
         }
       } else { // Match not yet started
-        let team = room.teams[socket.player.team];
+        let player = socket.player;
+        let team = room.teams[player.team];
 
-        // Removes the player from the team
-        team.splice(team.indexOf(socket.player), 1);
+        // Remove the player
+        room.players.splice(room.players.indexOf(player), 1);
+        team.splice(team.indexOf(player), 1);
 
         // Deletes the team if empty
         if (team.length === 0) {
-          delete room.teams[socket.player.team];
+          delete room.teams[player.team];
         }
       }
     } else {
@@ -111,6 +114,7 @@ io.on('connection', (socket) => {
 });
 
 /* Web */
+
 app.use('/public', express.static('public'));
 
 app.get('/', (req, res) => {
@@ -122,6 +126,7 @@ app.get('/:room', (req, res) => {
 });
 
 /* Sockets */
-server.listen(config.server.port, () => {
-  console.log(`Server listening on port ${config.server.port}`);
+
+server.listen(config.port, () => {
+  console.log(`Server listening on port ${config.port}`);
 });

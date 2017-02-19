@@ -2,72 +2,68 @@
 <html>
 
 <head>
-	<meta charset="utf-8" />
-	<title>CyberCycles</title>
-	<style>
-		body {
-			margin: 0;
-			background-color: #000;
-		}
-		
-		h1 {
-			color: rgba(24, 202, 230, 1.0);
-			text-shadow: 0 0 5px rgba(21, 171, 195, 0.75);
-			text-align: center;
-			font-size: bold;
-		}
-		
-		#join {
-			padding: .5em 1em;
-			color: #fff;
-			background-color: rgba(24, 202, 230, 0.75);
-			font-size: large;
-			font-family: sans-serif;
-			border: none;
-			cursor: pointer;
-		}
-		
-		.container {
-			color: #fff;
-			background-color: #000;
-			box-shadow: 0 0 2.5em rgba(21, 171, 195, 0.5);
-			max-width: 480px;
-			margin: 5em auto;
-			padding: 1em;
-			text-align: center;
-		}
-		
-		form div {
-			margin: 1em 0;
-		}
-	</style>
+  <meta charset="UTF-8">
+  <title>CyberCycles</title>
+  <link rel="stylesheet" href="public/style.css">
+  <style>
+    h1 {
+      color: rgba(24, 202, 230, 1.0);
+      text-shadow: 0 0 5px rgba(21, 171, 195, 0.75);
+      text-align: center;
+      font-size: bold;
+    }
+    
+    #join {
+      padding: .5em 1em;
+      color: #fff;
+      background-color: rgba(24, 202, 230, 0.75);
+      font-size: large;
+      font-family: sans-serif;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .container {
+      color: #fff;
+      background-color: #000;
+      box-shadow: 0 0 2.5em rgba(21, 171, 195, 0.5);
+      max-width: 480px;
+      margin: 5em auto;
+      padding: 1em;
+      text-align: center;
+    }
+    
+    form div {
+      margin: 1em 0;
+    }
+  </style>
 </head>
 
 <body>
-	<h1>CyberCycles</h1>
-	<div class="container">
-		<form onsubmit="return redirect()">
-			<div>
-				<label for="room">Chambre :</label>
-			</div>
+  <h1>CyberCycles</h1>
+  <div class="container">
+    <form onsubmit="return redirect()">
+      <div>
+        <label for="room">Chambre :</label>
+      </div>
 
-			<div>
-				<input type="text" id="room" name="room" />
-			</div>
+      <div>
+        <input type="text" id="room" name="room" />
+      </div>
 
-			<div>
-				<input type="submit" id="join" value="Joindre" />
-			</div>
-		</form>
-	</div>
+      <div>
+        <input type="submit" id="join" value="Joindre" />
+      </div>
+    </form>
+  </div>
 
-	<script>
-		function redirect() {
-			window.location = '/' + document.getElementById('room').value;
+  <script>
+    function redirect() {
+      window.location = '/' + document.getElementById('room').value;
 
-			return false;
-		}
-	</script>
+      return false;
+    }
+  </script>
 </body>
 
 </html>
