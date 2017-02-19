@@ -5,8 +5,9 @@ var ctx = canvas.getContext("2d");
 document.title = "CyberCycles - " + room;
 
 // Canvas dimensions
-canvas.width = parent.innerWidth;
-canvas.height = parent.innerHeight * 0.92;
+//canvas.width = parent.innerWidth;
+//canvas.height = parent.innerHeight;
+canvas.width = canvas.height = Math.min(parent.innerWidth, parent.innerHeight);
 
 // Cell dimensions
 var cellHeight;
@@ -16,7 +17,7 @@ var teams = {};
 var teamColors = ['#f00', '#00f', '#0f0', '#ff0', '#f0f', '#0ff'];
 
 function drawGrid(grid) {
-  ctx.strokeStyle = ctx.fillStyle = 'rgba(24, 202, 230, .75)';
+  ctx.strokeStyle = ctx.fillStyle = 'rgba(24, 202, 230, 0.75)';
   ctx.shadowColor = 'rgba(21, 171, 195, 0.5)';
   ctx.shadowBlur = 1;
 
@@ -24,7 +25,7 @@ function drawGrid(grid) {
   for (var i = 0; i <= grid.length; i += 1) {
     ctx.beginPath();
     ctx.moveTo(0, cellHeight * i);
-    ctx.lineTo(canvas.width, cellHeight * i);
+    ctx.lineTo(cellHeight * grid[0].length, cellHeight * i);
     ctx.closePath();
 
     ctx.stroke();
@@ -34,7 +35,7 @@ function drawGrid(grid) {
   for (var i = 0; i <= grid[0].length; i += 1) {
     ctx.beginPath();
     ctx.moveTo(cellWidth * i, 0);
-    ctx.lineTo(cellWidth * i, canvas.height);
+    ctx.lineTo(cellWidth * i, cellWidth * grid.length);
     ctx.closePath();
 
     ctx.stroke();
@@ -94,8 +95,7 @@ socket.on('connect', function() {
 socket.on('draw', function(prevGrid, players) {
   // Initialize
   if (!cellHeight || !cellWidth) {
-    cellHeight = canvas.height / prevGrid.length;
-    cellWidth = canvas.width / prevGrid[0].length;
+    cellWidth = cellHeight = Math.min(canvas.height / prevGrid.length, canvas.width / prevGrid[0].length);
 
     players.forEach(function(p) {
       if (teams[p.team])  {
