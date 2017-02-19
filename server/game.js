@@ -32,7 +32,7 @@ function randInt(min, max) {
  * @return {string} Grid representation
  */
 function dumpGrid(grid) {
-  let line = '—' + grid[0].map(x => '—').join('') + '—\n';
+  let line = '\n—' + grid[0].map(x => '—').join('') + '—\n';
 
   return line + grid.map(y => '|' + y.join('') + '|').join('\n') + line;
 }
@@ -248,17 +248,15 @@ function start(room) {
 
   room.saveFile = `saves/${roomID}-${Date.now()}.txt`;
 
+  fs.mkdir('saves', (err) => {
+    if (err && err.code !== 'EEXIST') {
+      console.error(err);
+    }
+  });
+
   fs.appendFile(room.saveFile, header, (err) => {
     if (err) {
-      if (err.code === 'ENOENT') {
-        fs.mkdir('saves', (err) => {
-          if (err) {
-            console.error(err);
-          }
-        });
-      } else {
-        console.error(err);
-      }
+      console.error(err);
     }
   });
 }
