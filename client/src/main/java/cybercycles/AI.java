@@ -9,6 +9,7 @@ public class AI {
     public final String TEAM = "";
 
     /* Déplacement de l'A.I. */
+    public String[] moves = {"u", "l", "d", "r"};
     public String direction; // Valeurs acceptées : "u", "l", "d", "r"
 
     /**
@@ -17,11 +18,14 @@ public class AI {
      * @param config Configuration de la grille de jeu
      */
     public void start(JSONObject config) {
+        System.out.println("Joueurs : " + config.getJSONArray("players"));
+
+        System.out.println("Obstacles : " + config.getJSONArray("obstacles"));
 
         System.out.print("Taille de la grille : ");
         System.out.println(config.getInt("w") + "x" + config.getInt("h"));
 
-        System.out.println("Nombre d'obstacles : " + config.getJSONArray("obstacles").length());
+        System.out.println("Votre identifiant : " + config.getString("me"));
     }
 
     /**
@@ -31,10 +35,11 @@ public class AI {
      * @return Mouvement à effectuer
      */
     public String next(JSONArray prevMoves) {
-        System.out.println(prevMoves);
+        System.out.println("Mouvements précdents : " + prevMoves);
 
-        // TODO : décider de la prochaine direction dans laquelle se déplacer
-        direction = "u";
+        // Choisis une direction au hasard
+        direction = moves[new Random().nextInt(moves.length)];
+        System.out.println("Mouvement choisi : " + direction);
 
         return direction;
     }
@@ -45,6 +50,6 @@ public class AI {
      * @param winnerID ID de l'équipe gagnante
      */
     public void end(String winnerID) {
-        System.out.println("Gagnant : " + winnerID);
+        System.out.println("Équipe gagnante : " + winnerID);
     }
 }
