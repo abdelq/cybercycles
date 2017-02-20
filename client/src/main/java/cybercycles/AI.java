@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public class AI {
     /* Configuration */
-    public final String ROOM = "default";
+    public final String ROOM = "";
     public final String TEAM = "";
 
     /* Déplacement de l'A.I. */

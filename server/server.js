@@ -8,6 +8,7 @@ const game = require('./game');
 
 io.on('connection', (socket) => {
   socket.on('join', (roomID, teamID) => {
+    roomID = roomID || 'null';
     socket.join(roomID);
 
     const room = io.sockets.adapter.rooms[roomID];
