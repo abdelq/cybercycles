@@ -17,7 +17,11 @@ public class AI {
      * @param config Configuration de la grille de jeu
      */
     public void start(JSONObject config) {
-        System.out.println(config);
+
+        System.out.print("Taille de la grille : ");
+        System.out.println(config.getInt("w") + "x" + config.getInt("h"));
+
+        System.out.println("Nombre d'obstacles : " + config.getJSONArray("obstacles").length());
     }
 
     /**
@@ -29,6 +33,9 @@ public class AI {
     public String next(JSONArray prevMoves) {
         System.out.println(prevMoves);
 
+        // TODO : décider de la prochaine direction dans laquelle se déplacer
+        direction = "u";
+
         return direction;
     }
 
@@ -38,6 +45,6 @@ public class AI {
      * @param winnerID ID de l'équipe gagnante
      */
     public void end(String winnerID) {
-        System.out.println(winnerID);
+        System.out.println("Gagnant : " + winnerID);
     }
 }
