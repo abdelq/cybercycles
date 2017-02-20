@@ -59,11 +59,11 @@ function getTeams(room, alive) {
 
   if (alive === true) {
     return teams.filter(team =>
-      team.find(player => !player.dead),
+      team.find(player => !player.dead)
     );
   } else if (alive === false) {
     return teams.filter(team =>
-      team.find(player => player.dead),
+      team.find(player => player.dead)
     );
   }
 
@@ -243,7 +243,7 @@ function start(room) {
 
   // Save for playback
   const header = `${players.map(player =>
-    `${player.id}: team ${player.team}`,
+    `${player.id}: team ${player.team}`
   ).join('\n')}\n\n`;
 
   room.saveFile = `saves/${roomID}-${Date.now()}.txt`;
@@ -298,7 +298,7 @@ function next(room) {
   // Collisions
   alivePlayers.forEach((aPlayer) => {
     const cPlayers = players.filter(player =>
-      player.x === aPlayer.x && player.y === aPlayer.y,
+      player.x === aPlayer.x && player.y === aPlayer.y
     );
 
     if (cPlayers > 1 || !room.grid[aPlayer.y] || room.grid[aPlayer.y][aPlayer.x] !== ' ') {

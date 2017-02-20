@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
 
     // Start the game already!
     const fullTeams = Object.keys(teams).filter(
-      id => teams[id].length === config.teams.size,
+      id => teams[id].length === config.teams.size
     );
 
     if (fullTeams.length === config.teams.amount) {
