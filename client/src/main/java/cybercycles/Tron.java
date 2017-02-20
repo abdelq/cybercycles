@@ -16,10 +16,13 @@ public class Tron {
 
       @Override
       public void call(Object... args) {
-        socket.emit("join", ai.ROOM, ai.TEAM);
-        
-        System.out.print("Lien vers le match : http://localhost:1337/");
-        System.out.println(!ai.ROOM.isEmpty() ? ai.ROOM : "null");
+        if (!ai.ROOM.isEmpty()) {
+          socket.emit("join", ai.ROOM, ai.TEAM);
+          System.out.println("Lien vers le match : http://localhost:1337/" + ai.ROOM);
+        } else {
+          System.out.println("Veuillez choisir un nom pour votre chambre");
+          System.exit(0);
+        }
       }
 
     }).on("start", new Emitter.Listener() {
