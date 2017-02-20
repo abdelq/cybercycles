@@ -10,9 +10,9 @@ io.on('connection', (socket) => {
   socket.on('join', (roomID, teamID) => {
     socket.join(roomID);
 
-    let room = io.sockets.adapter.rooms[roomID];
-    let players = room.players || (room.players = []);
-    let teams = room.teams || (room.teams = {});
+    const room = io.sockets.adapter.rooms[roomID];
+    const players = room.players || (room.players = []);
+    const teams = room.teams || (room.teams = {});
 
     // Spectators
     if (room.grid || teamID === undefined) {
@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
     }
 
     // Players
-    let playerID = String(room.players.length + 1);
+    const playerID = String(room.players.length + 1);
     teamID = teamID || playerID;
 
     // Player/Team management
@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
     }
 
     if (team && team.length < config.teams.size) {
-      let player = socket.player = {
+      const player = socket.player = {
         id: playerID,
         team: teamID,
         x: 0,
@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
 
     // Start the game already!
     const fullTeams = Object.keys(teams).filter(
-      id => teams[id].length === config.teams.size
+      id => teams[id].length === config.teams.size,
     );
 
     if (fullTeams.length === config.teams.amount) {
@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('move', (direction) => {
-    let player = socket.player;
+    const player = socket.player;
 
     if (player && 'uldr'.indexOf(direction) !== -1) {
       player.direction = direction;
@@ -73,8 +73,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
-    let roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
-    let room = io.sockets.adapter.rooms[roomID];
+    const roomID = Object.keys(socket.rooms).find(id => id !== socket.id);
+    const room = io.sockets.adapter.rooms[roomID];
 
     if (!room) {
       return;
@@ -95,8 +95,8 @@ io.on('connection', (socket) => {
           console.info(`Match ended in room: ${roomID}. Winners: ${aliveTeamID}.`);
         }
       } else { // Match not yet started
-        let player = socket.player;
-        let team = room.teams[player.team];
+        const player = socket.player;
+        const team = room.teams[player.team];
 
         // Remove the player
         room.players.splice(room.players.indexOf(player), 1);
@@ -118,11 +118,11 @@ io.on('connection', (socket) => {
 app.use('/public', express.static('public'));
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(`${__dirname}/index.html`);
 });
 
 app.get('/:room', (req, res) => {
-  res.sendFile(__dirname + '/room.html');
+  res.sendFile(`${__dirname}/room.html`);
 });
 
 /* Sockets */

@@ -8,26 +8,26 @@ const delay = {
 const grid = {
   width: {
     min: 30,
-    max: 40
+    max: 40,
   },
   height: {
     min: 20,
-    max: 30
+    max: 30,
   },
 };
 
 const obstacles = {
   amount: {
     min: 2,
-    max: 6
+    max: 6,
   },
   width: {
     min: 2,
-    max: 6
+    max: 6,
   },
   height: {
     min: 2,
-    max: 6
+    max: 6,
   },
   symetrical: true,
 };
@@ -42,5 +42,5 @@ module.exports = {
   delay,
   grid,
   ob: obstacles,
-  teams
+  teams,
 };

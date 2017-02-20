@@ -1,12 +1,10 @@
 var socket = io();
 var room = location.pathname.slice(1);
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext('2d');
 
-document.title = "CyberCycles - " + room;
+document.title = `CyberCycles - ${room}`;
 
 // Canvas dimensions
-//canvas.width = parent.innerWidth;
-//canvas.height = parent.innerHeight;
 canvas.width = canvas.height = Math.min(parent.innerWidth, parent.innerHeight);
 
 // Cell dimensions
@@ -32,7 +30,7 @@ function drawGrid(grid) {
   }
 
   // Vertical lines
-  for (var i = 0; i <= grid[0].length; i += 1) {
+  for (var j = 0; j <= grid[0].length; j += 1) {
     ctx.beginPath();
     ctx.moveTo(cellWidth * i, 0);
     ctx.lineTo(cellWidth * i, cellWidth * grid.length);
@@ -63,9 +61,10 @@ function drawPlayers(grid, teams) {
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
       } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
         var playerID = +grid[i][j];
-        var playerIndex, team;
+        var playerIndex,
+          team;
 
-        Object.keys(teams).forEach(function(id) {
+        Object.keys(teams).forEach((id) => {
           var index = teams[id].indexOf(String(playerID));
 
           if (index !== -1) {
@@ -88,16 +87,16 @@ function drawPlayers(grid, teams) {
   }
 }
 
-socket.on('connect', function() {
+socket.on('connect', () => {
   socket.emit('join', room);
 });
 
-socket.on('draw', function(prevGrid, players) {
+socket.on('draw', (prevGrid, players) => {
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellWidth = cellHeight = Math.min(canvas.height / prevGrid.length, canvas.width / prevGrid[0].length);
 
-    players.forEach(function(p) {
+    players.forEach((p) => {
       if (teams[p.team])  {
         teams[p.team].push(p.id);
       } else {
@@ -108,8 +107,8 @@ socket.on('draw', function(prevGrid, players) {
     // Header
     var html = ' | ';
 
-    Object.keys(teams).forEach(function(name, idx) {
-      html += '<span style="color: ' + teamColors[idx % teamColors.length] + '">' + name + '</span> | ';
+    Object.keys(teams).forEach((name, idx) => {
+      html += `<span style="color: ${teamColors[idx % teamColors.length]}">${name}</span> | `;
     });
 
     document.getElementById('header').innerHTML = html;
@@ -124,12 +123,12 @@ socket.on('draw', function(prevGrid, players) {
   drawPlayers(prevGrid, teams);
 });
 
-socket.on('end', function(winnerID) {
+socket.on('end', (winnerID) => {
   cellHeight = cellWidth = null;
   socket.emit('join', room);
 });
 
-socket.on('disconnect', function() {
+socket.on('disconnect', () => {
   cellHeight = cellWidth = null;
   socket.emit('join', room);
 });

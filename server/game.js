@@ -32,9 +32,9 @@ function randInt(min, max) {
  * @return {string} Grid representation
  */
 function dumpGrid(grid) {
-  let line = '\n—' + grid[0].map(x => '—').join('') + '—\n';
+  const line = `\n—${grid[0].map(() => '—').join('')}—\n`;
 
-  return line + grid.map(y => '|' + y.join('') + '|').join('\n') + line;
+  return line + grid.map(y => `|${y.join('')}|`).join('\n') + line;
 }
 
 /**
@@ -59,15 +59,29 @@ function getTeams(room, alive) {
 
   if (alive === true) {
     return teams.filter(team =>
-      team.find(player => !player.dead)
+      team.find(player => !player.dead),
     );
   } else if (alive === false) {
     return teams.filter(team =>
-      team.find(player => player.dead)
+      team.find(player => player.dead),
     );
   }
 
   return teams;
+}
+
+/**
+ * Sets a value in a grid's cell.
+ *
+ * @param {object} grid Grid
+ * @param {number} x Position in the X axis
+ * @param {number} y Position in the Y axis
+ * @param {string} val Value to set
+ */
+function setGrid(grid, x, y, val) {
+  if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
+    grid[y][x] = val;
+  }
 }
 
 /**
@@ -92,20 +106,6 @@ function endMatch(room, teamID) {
 
   io.to(roomID).emit('end', teamID);
   getSockets(room).forEach(socket => socket.leave(roomID));
-}
-
-/**
- * Sets a value in a grid's cell.
- *
- * @param {object} grid Grid
- * @param {number} x Position in the X axis
- * @param {number} y Position in the Y axis
- * @param {string} val Value to set
- */
-function setGrid(grid, x, y, val) {
-  if (y >= 0 && x >= 0 && y < grid.length && x < grid[y].length) {
-    grid[y][x] = val;
-  }
 }
 
 /**
@@ -242,9 +242,9 @@ function start(room) {
   io.to(roomID).emit('draw', room.grid, players);
 
   // Save for playback
-  const header = players.map((player) =>
-    `${player.id}: team ${player.team}`
-  ).join('\n') + '\n\n';
+  const header = `${players.map(player =>
+    `${player.id}: team ${player.team}`,
+  ).join('\n')}\n\n`;
 
   room.saveFile = `saves/${roomID}-${Date.now()}.txt`;
 
@@ -290,13 +290,15 @@ function next(room) {
       case 'r':
         player.x += 1;
         break;
+      default:
+        break;
     }
   });
 
   // Collisions
   alivePlayers.forEach((aPlayer) => {
-    const cPlayers = players.filter((player) =>
-      player.x === aPlayer.x && player.y === aPlayer.y
+    const cPlayers = players.filter(player =>
+      player.x === aPlayer.x && player.y === aPlayer.y,
     );
 
     if (cPlayers > 1 || !room.grid[aPlayer.y] || room.grid[aPlayer.y][aPlayer.x] !== ' ') {
@@ -309,7 +311,7 @@ function next(room) {
   // Emit infos
   const roomID = getRoomID(room);
 
-  const directions = players.map((p) => ({
+  const directions = players.map(p => ({
     id: p.id,
     direction: p.direction,
   }));
@@ -345,5 +347,5 @@ module.exports = {
   next,
   killPlayer,
   getTeams,
-  endMatch
+  endMatch,
 };
