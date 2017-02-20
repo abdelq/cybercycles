@@ -168,11 +168,11 @@ function setPlayers(room) {
       do {
         x = randInt(tArea * tIndex, tArea * (tIndex + 1));
         y = randInt(pArea * pIndex, pArea * (pIndex + 1));
-      } while (room.grid[y][x] !== ' ' &&
-        (room.grid[y][x - 1] === '#' ||
-          room.grid[y][x + 1] === '#' ||
-          room.grid[y - 1][x] === '#' ||
-          room.grid[y + 1][x] === '#'));
+      } while (room.grid[y][x] !== ' ' ||
+        (room.grid[y][x - 1] !== ' ' ||
+          room.grid[y][x + 1] !== ' ' ||
+          room.grid[y - 1][x] !== ' ' ||
+          room.grid[y + 1][x] !== ' '));
 
       // Position
       player.x = x;
