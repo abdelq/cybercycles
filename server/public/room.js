@@ -132,3 +132,8 @@ socket.on('disconnect', () => {
   cellHeight = cellWidth = null;
   socket.emit('join', room);
 });
+
+// Refresh on resize
+window.addEventListener('resize', function () { 
+  window.location.reload(); 
+});
