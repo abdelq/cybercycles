@@ -1,11 +1,14 @@
 package cybercycles;
 
+import java.net.URISyntaxException;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import java.net.URISyntaxException;
+import org.json.JSONException;
 
 public class Tron {
     public static void main (String[] args) throws URISyntaxException {
@@ -30,7 +33,12 @@ public class Tron {
             @Override
             public void call(Object... args) {
                 JSONObject config = (JSONObject) args[0];
-                ai.start(config);
+
+                try {
+                    ai.start(config);
+                } catch (JSONException ex) {
+                    Logger.getLogger(Tron.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
         }).on("next", new Emitter.Listener() {

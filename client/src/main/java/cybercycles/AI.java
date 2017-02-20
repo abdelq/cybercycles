@@ -1,6 +1,8 @@
 package cybercycles;
 
+import java.util.Random;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class AI {
@@ -16,8 +18,9 @@ public class AI {
      * Fonction appelée en début de partie.
      *
      * @param config Configuration de la grille de jeu
+     * @throws org.json.JSONException
      */
-    public void start(JSONObject config) {
+    public void start(JSONObject config) throws JSONException {
         System.out.println("Joueurs : " + config.getJSONArray("players"));
 
         System.out.println("Obstacles : " + config.getJSONArray("obstacles"));
