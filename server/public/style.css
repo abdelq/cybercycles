@@ -2,3 +2,14 @@ body {
   margin: 0;
   background-color: #000;
 }
+
+input[type="submit"], button, a.btn {
+  padding: .5em 1em;
+  color: #fff;
+  background-color: rgba(24, 202, 230, 0.75);
+  font-size: large;
+  font-family: sans-serif;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}

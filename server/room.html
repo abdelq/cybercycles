@@ -13,9 +13,26 @@
       font-size: large;
     }
 
+    #waiting {
+        color: #555;
+        position: absolute;
+        top: 30%;
+        text-align: center;
+        width: 100%;
+    }
     #canvas {
       display: block;
       margin: auto;
+    }
+
+    #replay {
+      position: absolute;
+      top: 0;
+    }
+
+    #back {
+      position: absolute;
+      top: 60px;
     }
   </style>
 </head>
@@ -23,9 +40,17 @@
 <body>
   <div id="header"></div>
   <div>
+    <h2 id="waiting">En attente de début de partie...</h2>
     <canvas id="canvas"></canvas>
   </div>
 
+  <a class="btn" id="replay" type="button" href="#!">
+      Replay
+  </a>
+  <button id="back" type="button" onclick="window.location = room">
+      Back to the game
+  </button>
+  
   <script src="public/socket.io.slim.min.js"></script>
   <script src="public/room.js"></script>
 </body>

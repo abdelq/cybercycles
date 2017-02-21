@@ -87,11 +87,42 @@ function drawPlayers(grid, teams) {
   }
 }
 
+var back, replay, waiting, header;
+document.addEventListener('DOMContentLoaded', function() {
+  back = document.getElementById('back');
+  replay = document.getElementById('replay');
+  waiting = document.getElementById('waiting');
+  header = document.getElementById('header');
+  
+  if(window.location.search == '?replay') {
+    replay.href = '#!';
+    replay.onclick = function() { window.location.reload(); };
+  } else {
+    back.style.display = 'none';
+    replay.style.display = 'none';
+  }
+});
+
+function connect() {
+  if(window.location.search == '?replay') {
+    socket.emit('replay', room, window.location.hash.slice(1));
+  } else {
+    socket.emit('join', room);
+  }
+}
+
 socket.on('connect', () => {
-  socket.emit('join', room);
+  connect();
+});
+
+socket.on('start', () => {
+  back.style.display = 'none';
+  replay.style.display = 'none';
 });
 
 socket.on('draw', (prevGrid, players) => {
+  waiting.style.display = 'none';
+  
   // Initialize
   if (!cellHeight || !cellWidth) {
     cellWidth = cellHeight = Math.min(canvas.height / prevGrid.length, canvas.width / prevGrid[0].length);
@@ -111,7 +142,7 @@ socket.on('draw', (prevGrid, players) => {
       html += `<span style="color: ${teamColors[idx % teamColors.length]}">${name}</span> | `;
     });
 
-    document.getElementById('header').innerHTML = html;
+    header.innerHTML = html;
 
     // Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -125,12 +156,18 @@ socket.on('draw', (prevGrid, players) => {
 
 socket.on('end', (winnerID) => {
   cellHeight = cellWidth = null;
-  socket.emit('join', room);
+  connect();
+});
+
+socket.on('saved', (filename) => {
+  cellHeight = cellWidth = null;
+  replay.style.display = 'block';
+  replay.href = room + '?replay#' + filename.replace(/^saves\//, '');
 });
 
 socket.on('disconnect', () => {
   cellHeight = cellWidth = null;
-  socket.emit('join', room);
+  connect();
 });
 
 // Refresh on resize

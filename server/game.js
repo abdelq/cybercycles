@@ -105,6 +105,7 @@ function endMatch(room, teamID) {
   const roomID = getRoomID(room);
 
   io.to(roomID).emit('end', teamID);
+  io.to(roomID).emit('saved', room.saveFile);
   getSockets(room).forEach(socket => socket.leave(roomID));
 }
 
