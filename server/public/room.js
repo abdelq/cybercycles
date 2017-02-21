@@ -29,11 +29,12 @@ function drawGrid(grid) {
     ctx.stroke();
   }
 
+  console.log(grid[0].length, "x", grid.length);
   // Vertical lines
-  for (var j = 0; j <= grid[0].length; j += 1) {
+  for (var i = 0; i <= grid[0].length; i += 1) {
     ctx.beginPath();
     ctx.moveTo(cellWidth * i, 0);
-    ctx.lineTo(cellWidth * i, cellWidth * grid.length);
+    ctx.lineTo(cellWidth * i, cellHeight * grid.length);
     ctx.closePath();
 
     ctx.stroke();
@@ -61,8 +62,7 @@ function drawPlayers(grid, teams) {
         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
       } else if (grid[i][j] !== ' ' && grid[i][j] !== '#') {
         var playerID = +grid[i][j];
-        var playerIndex,
-          team;
+        var playerIndex, team;
 
         Object.keys(teams).forEach((id) => {
           var index = teams[id].indexOf(String(playerID));
