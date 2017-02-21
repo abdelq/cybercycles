@@ -6,6 +6,11 @@ Défi
 
 Cette année, vous devrez programmer des intelligences artificielles qui sauront combattre leurs adversaires dans un environnement inspiré de [TRON].
 
+À quatre personnes, vous devrez programmer non pas une mais *deux intelligences artificelles* qui se batteront en équipe contre deux autres intelligences artificielles dans un tournoi à mort.
+
+Vous pouvez donc choisir d'utiliser une approche classique, où chaque robot devra essayer de survivre jusqu'à la fin de la partie, ou vous pouvez décider d'y aller un peu plus créatif et de tenter de faire collaborer vos deux robots !
+
+
 Directives
 ----------
 
@@ -13,16 +18,17 @@ La première chose à effectuer est de choisir une valeur pour `ROOM` autre que 
 
 Par la suite, pour pouvoir tester votre AI, vous devez démarrer deux instances, dans la même chambre, avec une valeur différente de `TEAM`.
 
-Pour rendre les choses plus simples, vous pouvez laisser `TEAM` vide et le serveur s'occupera de générer l'identifiant de votre équipe. Dans ce cas, vous n'aurez qu'à démarrer le même programme deux fois.
+~~Pour rendre les choses plus simples, vous pouvez laisser `TEAM` vide et le serveur s'occupera de générer l'identifiant de votre équipe. Dans ce cas, vous n'aurez qu'à démarrer le même programme deux fois.~~
 
-À noter que vos modifications doivent principalement se faire dans `AI.java`, ainsi que dans d'autres fichiers que vous pouvez créer.
+Vos modifications doivent principalement se faire dans `AI.java`, mais vous pouvez vous créer d'autres fichiers au besoin.
+
 
 Structure
 ---------
 
 ### Début de partie
 
-Au début de la partie, `start` est appelé. Vous recevez un objet en *JSON* qui contient la configuration du jeu, générée par le serveur.
+Au début de la partie, `start` est appelée. Vous recevez un objet en *JSON* qui contient la configuration du jeu, générée par le serveur.
 
 Voici un exemple de ce `JSONObject` :
 
@@ -60,13 +66,14 @@ Voici un exemple de ce `JSONObject` :
 
 `players` est un tableau qui contient des objets représentant des joueurs, avec leurs coordonnées de départ (`x` et `y`), leur identifiant (`id`), leur équipe (`team`) et leur direction `direction`.
 
-`obstacles` est un tableau qui contient des objets représentant des obstacles sur la grille de jeu, avec leurs coordonnées (`x` et `y`), leurs dimensions (`w` sur l'axe des *x* et `h` sur l'axe des *y*).
+`obstacles` est un tableau qui contient des objets représentant des obstacles rectangulaires sur la grille de jeu, avec leurs coordonnées (`x` et `y`), leurs dimensions (`w` sur l'axe des *x* et `h` sur l'axe des *y*).
 
 Finalement, `w` représente la longueur de la grille, `h` représente la largeur de la grille et `me` représente votre propre identifiant.
 
+
 ### À chaque tour de jeu
 
-À chaque tour de jeu, `next` est appelé. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tel que reçues par le serveur.
+À chaque tour de jeu, `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tel que reçues par le serveur.
 
 Le `JSONArray` ressemble à ce qui suit :
 
@@ -91,10 +98,26 @@ Chaque `JSONObject` contient l'identifiant du joueur (`id`) et sa direction pris
 -   `d` pour **down** (bas)
 -   `r` pour **right** (droite)
 
+
 ### Fin de partie
 
-À la fin de la partie, `end` est appelé avec, comme attribut, l'identifiant de l'équipe qui a gagné.
+À la fin de la partie, `end` est appelée avec, comme attribut, l'identifiant de l'équipe qui a gagné.
 
 Il n'est pas nécessaire de faire quelque chose avec la valeur, mais ça peut vous être utile durant les tests.
+
+
+Détails techniques
+------------------
+
+### Temps d'exécution
+
+Vous ne disposez pas d'un temps infini pour calculer la prochaine direction dans laquelle vous souhaitez vous déplacer : si votre robot ne termine pas l'exécution de la fonction `next` avant un délai de **XYZ** secondes, le serveur assumera que vous souhaitez continuer en ligne droite, *sans vous en parler*.
+
+Votre robot s'imaginera aller dans la direction voulue (demandée en retard), ce qui risquera de causer votre défaite dans les tours qui suivent.
+
+
+### La classe `JSONObject`
+
+
 
   [TRON]: https://fr.wikipedia.org/wiki/Tron
