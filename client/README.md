@@ -37,11 +37,23 @@ Voici un exemple de ce `JSONObject` :
     "team": "1",
     "direction": "u"
   }, {
+    "x": 4,
+    "y": 17,
+    "id": "2",
+    "team": "1",
+    "direction": "d"
+  }, {
     "x": 30,
     "y": 21,
-    "id": "2",
+    "id": "3",
     "team": "2",
     "direction": "u"
+  }, {
+    "x": 18,
+    "y": 21,
+    "id": "4",
+    "team": "2",
+    "direction": "d"
   }],
   "obstacles": [{
     "w": 3,
@@ -60,7 +72,7 @@ Voici un exemple de ce `JSONObject` :
 }
 ```
 
-`players` est un tableau qui contient des objets représentant des joueurs, avec leurs coordonnées de départ (`x` et `y`), leur identifiant (`id`), leur équipe (`team`) et leur direction `direction`.
+`players` est un tableau qui contient des objets représentant des joueurs, avec leurs coordonnées de départ (`x` et `y`), leur identifiant (`id`), leur équipe (`team`) et leur direction (`direction`).
 
 `obstacles` est un tableau qui contient des objets représentant des obstacles rectangulaires sur la grille de jeu, avec leurs coordonnées (`x` et `y`), leurs dimensions (`w` sur l'axe des *x* et `h` sur l'axe des *y*).
 
@@ -68,7 +80,7 @@ Finalement, `w` représente la longueur de la grille, `h` représente la largeur
 
 ### À chaque tour de jeu
 
-À chaque tour de jeu, `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tel que reçues par le serveur.
+À chaque tour de jeu, `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tels que reçus par le serveur.
 
 Le `JSONArray` ressemble à ce qui suit :
 
@@ -84,9 +96,9 @@ Le `JSONArray` ressemble à ce qui suit :
 
 Chaque `JSONObject` contient l'identifiant du joueur (`id`) et sa direction prise durant le dernier tour de jeu (`direction`).
 
-`direction` doit être retourné dans `next` suite à la décision prise par votre intelligence artificielle, à chaque tour de jeu.
+`direction` doit être retournée dans `next` suite à la décision prise par votre intelligence artificielle, à chaque tour de jeu.
 
-`direction` est un `String` qui n'accepte que les valeurs suivantes :
+`direction` est une `String` qui n'accepte que les valeurs suivantes :
 
 -   `u` pour **up** (haut)
 -   `l` pour **left** (gauche)
@@ -112,9 +124,9 @@ Votre robot s'imaginera aller dans la direction voulue (demandée en retard), ce
 
 ### `JSONObject`
 
-Comme mentionné plus haut, quelques réponses du serveur, sont envoyés en *JSON*.
+Comme mentionné plus haut, quelques réponses du serveur, sont envoyées en *JSON*.
 
-La classe `JsonObject` permet de gérer tout ça, avec des méthodes tel que :
+La classe `JsonObject` permet de gérer tout ça, avec des méthodes telles que :
 
 -   `getInt`
 -   `getBoolean`
