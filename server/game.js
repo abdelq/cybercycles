@@ -156,10 +156,11 @@ function setObstacles(grid, amount) {
  */
 function setPlayers(room) {
   const players = [];
+  const grid = room.grid;
 
   // Spawning surfaces
-  const tArea = Math.floor(room.grid[0].length / config.teams.amount);
-  const pArea = Math.floor(room.grid.length / config.teams.size);
+  const tArea = Math.floor(grid[0].length / config.teams.amount);
+  const pArea = Math.floor(grid.length / config.teams.size);
 
   getTeams(room).forEach((team, tIndex) => {
     team.forEach((player, pIndex) => {
@@ -169,18 +170,19 @@ function setPlayers(room) {
       do {
         x = randInt(tArea * tIndex, tArea * (tIndex + 1));
         y = randInt(pArea * pIndex, pArea * (pIndex + 1));
-      } while (room.grid[y][x] !== ' ' ||
-        (room.grid[y][x - 1] !== ' ' ||
-          room.grid[y][x + 1] !== ' ' ||
-          room.grid[y - 1][x] !== ' ' ||
-          room.grid[y + 1][x] !== ' '));
+      } while (
+        grid[y][x] !== ' ' ||
+        (grid[y] && (grid[y][x - 1] !== ' ' || grid[y][x + 1] !== ' ')) ||
+        (grid[y - 1] && grid[y - 1][x] !== ' ') ||
+        (grid[y + 1]  && grid[y + 1][x] !== ' ')
+      );
 
       // Position
       player.x = x;
       player.y = y;
 
       // Direction
-      if (y > (room.grid.length / 2)) {
+      if (y > (grid.length / 2)) {
         player.direction = 'u';
       } else {
         player.direction = 'd';

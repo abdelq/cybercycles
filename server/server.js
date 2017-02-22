@@ -65,35 +65,41 @@ io.on('connection', (socket) => {
       console.log(`Game started in room ${roomID}`);
     }
   });
-  
+
   socket.on('replay', (roomID, replayFile) => {
-    
     roomID = roomID || 'null';
-    
     socket.join(roomID + "?replay");
-    
+
     // Find the latest played game
     fs.readdir('saves', function(err, filenames) {
-      if (err) return;
+      if (err) {
+        return;
+      }
 
-      let save = filenames.filter((name) => name === replayFile)[0];
-      
+      let save = filenames.find((name) => name === replayFile);
+
       fs.readFile('saves/' + save, "utf8", function(err, data) {
-        if (err) return console.log('naw wonkey');;
-        
+        if (err) {
+          return;
+          // console.log('naw wonkey');
+        }
+
         data = data.split('\n\n');
 
         let players = data[0].split('\n')
-                             .map((line) => {
-                               let playerID, teamID;
-                               
-                               line.replace(/^(\d)+: (.*)$/, (line, id, team) => {
-                                 playerID = id;
-                                 teamID = team;
-                               });
-                               
-                               return {team: teamID, id: playerID};
-                             });
+          .map((line) => {
+            let playerID, teamID;
+
+            line.replace(/^(\d)+: (.*)$/, (line, id, team) => {
+              playerID = id;
+              teamID = team;
+            });
+
+            return {
+              team: teamID,
+              id: playerID
+            };
+          });
 
         replay(socket, players, data.slice(1));
       });
@@ -151,15 +157,15 @@ io.on('connection', (socket) => {
 
 function replay(socket, players, grids) {
 
-  if(!grids.length || !socket.connected)
+  if (!grids.length || !socket.connected)
     return;
-  
+
   let grid = grids[0].trim()
-                     .replace(/\|/g, '')
-                     .replace(/—/g, '')
-                     .split('\n')
-                     .map((line) => line.split(''))
-                     .filter((arr) => arr.length);
+    .replace(/\|/g, '')
+    .replace(/—/g, '')
+    .split('\n')
+    .map((line) => line.split(''))
+    .filter((arr) => arr.length);
 
   socket.emit('draw', grid, players);
 
