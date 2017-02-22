@@ -6,22 +6,18 @@ Défi
 
 Cette année, vous devrez programmer des intelligences artificielles qui sauront combattre leurs adversaires dans un environnement inspiré de [TRON].
 
-À quatre personnes, vous devrez programmer non pas une mais *deux intelligences artificelles* qui se batteront en équipe contre deux autres intelligences artificielles dans un tournoi à mort.
+À quatre personnes, vous devrez programmer *deux intelligences artificielles* qui se battront en équipe contre deux autres intelligences artificielles dans un tournoi à mort.
 
-Vous pouvez donc choisir d'utiliser une approche classique, où chaque robot devra essayer de survivre jusqu'à la fin de la partie, ou vous pouvez décider d'y aller un peu plus créatif et de tenter de faire collaborer vos deux robots !
-
+Vous pouvez donc choisir d'utiliser une approche classique, où chaque robot devra essayer de survivre jusqu'à la fin de la partie, ou vous pouvez tenter de faire collaborer vos deux robots !
 
 Directives
 ----------
 
-La première chose à effectuer est de choisir une valeur pour `ROOM` autre que *default*, commune aux membres de votre équipe.
+La première chose à effectuer est de choisir une valeur pour `ROOM`, commune aux membres de votre équipe.
 
-Par la suite, pour pouvoir tester votre AI, vous devez démarrer deux instances, dans la même chambre, avec une valeur différente de `TEAM`.
-
-~~Pour rendre les choses plus simples, vous pouvez laisser `TEAM` vide et le serveur s'occupera de générer l'identifiant de votre équipe. Dans ce cas, vous n'aurez qu'à démarrer le même programme deux fois.~~
+Par la suite, pour pouvoir tester votre AI, vous devez démarrer quatre instances, dans la même chambre. Chaque 2 instances doivent avoir la même équipe (`TEAM`).
 
 Vos modifications doivent principalement se faire dans `AI.java`, mais vous pouvez vous créer d'autres fichiers au besoin.
-
 
 Structure
 ---------
@@ -70,7 +66,6 @@ Voici un exemple de ce `JSONObject` :
 
 Finalement, `w` représente la longueur de la grille, `h` représente la largeur de la grille et `me` représente votre propre identifiant.
 
-
 ### À chaque tour de jeu
 
 À chaque tour de jeu, `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tel que reçues par le serveur.
@@ -98,26 +93,35 @@ Chaque `JSONObject` contient l'identifiant du joueur (`id`) et sa direction pris
 -   `d` pour **down** (bas)
 -   `r` pour **right** (droite)
 
-
 ### Fin de partie
 
 À la fin de la partie, `end` est appelée avec, comme attribut, l'identifiant de l'équipe qui a gagné.
 
 Il n'est pas nécessaire de faire quelque chose avec la valeur, mais ça peut vous être utile durant les tests.
 
-
 Détails techniques
 ------------------
 
 ### Temps d'exécution
 
-Vous ne disposez pas d'un temps infini pour calculer la prochaine direction dans laquelle vous souhaitez vous déplacer : si votre robot ne termine pas l'exécution de la fonction `next` avant un délai de **XYZ** secondes, le serveur assumera que vous souhaitez continuer en ligne droite, *sans vous en parler*.
+Vous ne disposez pas d'un temps infini pour calculer la prochaine direction dans laquelle vous souhaitez vous déplacer.
+
+Si votre robot ne termine pas l'exécution de la fonction `next` avant un certain délai déterminé par le serveur, on assumera que vous souhaitez continuer en ligne droite.
 
 Votre robot s'imaginera aller dans la direction voulue (demandée en retard), ce qui risquera de causer votre défaite dans les tours qui suivent.
 
+### `JSONObject`
 
-### La classe `JSONObject`
+Comme mentionné plus haut, quelques réponses du serveur, sont envoyés en *JSON*.
 
+La classe `JsonObject` permet de gérer tout ça, avec des méthodes tel que :
 
+-   `getInt`
+-   `getBoolean`
+-   `getString`
+-   ...
+
+[Vous pouvez consulter la documentation complète sur internet].
 
   [TRON]: https://fr.wikipedia.org/wiki/Tron
+  [Vous pouvez consulter la documentation complète sur internet]: https://docs.oracle.com/javaee/7/api/javax/json/JsonObject.html
