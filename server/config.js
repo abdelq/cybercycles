@@ -11,8 +11,8 @@ const grid = {
     max: 40,
   },
   height: {
-    min: 20,
-    max: 30,
+    min: 30,
+    max: 40,
   },
 };
 
@@ -34,7 +34,7 @@ const obstacles = {
 
 const teams = {
   amount: 2,
-  size: 1,
+  size: 2,
 };
 
 module.exports = {
