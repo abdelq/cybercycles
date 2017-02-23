@@ -46,10 +46,10 @@ public class AI {
 
         for (int i = 0; i < prevMoves.length(); i++) {
             JSONObject prevMove = prevMoves.getJSONObject(i);
-            System.out.print(prevMove);
+            System.out.print(prevMove + " ");
         }
 
-        System.out.println();
+        System.out.print("\n");
 
         // Choisis une direction au hasard
         direction = directions[random.nextInt(directions.length)];

@@ -14,7 +14,6 @@ public class Tron {
 
     public static void main(String[] args) throws URISyntaxException {
         final String server = "http://" + System.getProperty("host") + ":" + System.getProperty("port");
-        System.out.println(server);
 
         final Socket socket = IO.socket(server);
         final AI ai = new AI();
