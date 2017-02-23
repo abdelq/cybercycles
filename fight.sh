@@ -1,48 +1,46 @@
-#!/bin/bash
+#!/bin/sh
 
-server="http://localhost:1337"
+ROOM=bracket-num
 
-room=bracket-num
-
-teams=(the-super-twados twado-the-fifth)
+TEAMS=(the-super-twados twado-the-fifth)
 
 clients=(/home/k/src/cybercycles/client
-         /home/k/src/cybercycles/client
-         /home/k/src/cybercycles/client
-         /home/k/src/cybercycles/client)
+/home/k/src/cybercycles/client
+/home/k/src/cybercycles/client
+/home/k/src/cybercycles/client)
 
 function start {
-    (
-        local team
-        cd ${clients[$1]}
-        
-        if [ $1 -lt 2 ]
-        then
-            team=${teams[0]}
-        else
-            team=${teams[1]}
-        fi
+  (
+  local team
+  cd ${clients[$1]}
 
-        echo $1 - $team
+  if [ $1 -lt 2 ]
+  then
+    TEAM=${teams[0]}
+  else
+    TEAM=${teams[1]}
+  fi
 
-        # mvn -q package > /dev/null 2> /dev/null
-        mvn -q exec:java -Dexec.args="$server $room $team" | tail -n 1 | grep winnerID >> ../bot-$1
-    )
+  echo $1 - $team
+
+  # mvn -q package > /dev/null 2> /dev/null
+  mvn -q exec:java -Droom=$ROOM -Dteam=$TEAM | tail -n 1 | grep winnerID >> ../bot-$1
+  )
 }
 
 rm bot-{0,1,2,3}
 
 for number in $(seq 1)
 do
-    start 0 &
-    start 1 &
-    start 2 &
-    start 3 # Wait for the game to end
+  start 0 &
+  start 1 &
+  start 2 &
+  start 3 # Wait for the game to end
 done
 
 if ! diff bot-0 bot-1 || ! diff bot-0 bot-2 || ! diff bot-0 bot-3
 then
-    echo wat
+  echo wat
 fi
 
 sort bot-3 | uniq -c > winrar
