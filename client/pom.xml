@@ -4,24 +4,6 @@
   <groupId>ca.umontreal.iro.hackathon</groupId>
   <artifactId>cybercycles</artifactId>
   <version>1.0</version>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
-        <configuration>
-          <mainClass>cybercycles.Tron</mainClass>
-          <executable>java</executable>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>io.socket</groupId>
@@ -29,4 +11,26 @@
       <version>0.8.3</version>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <configuration>
+          <mainClass>cybercycles.Tron</mainClass>
+          <systemProperties>
+            <systemProperty>
+              <key>host</key>
+              <value>localhost</value>
+            </systemProperty>
+            <systemProperty>
+              <key>port</key>
+              <value>1337</value>
+            </systemProperty>
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -6,13 +6,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class AI {
+
     /* Configuration */
     public final String ROOM = "";
     public final String TEAM = "";
 
     /* Déplacement de l'A.I. */
-    public String[] moves = {"u", "l", "d", "r"};
-    public String direction; // Valeurs acceptées : "u", "l", "d", "r"
+    public final char[] directions = {'u', 'l', 'd', 'r'};
+    public char direction;
+
+    Random random = new Random();
 
     /**
      * Fonction appelée en début de partie.
@@ -26,7 +29,7 @@ public class AI {
         System.out.println("Obstacles : " + config.getJSONArray("obstacles"));
 
         System.out.print("Taille de la grille : ");
-        System.out.println(config.getInt("w") + "x" + config.getInt("h"));
+        System.out.println(config.getInt("w") + " x " + config.getInt("h"));
 
         System.out.println("Votre identifiant : " + config.getString("me"));
     }
@@ -36,12 +39,20 @@ public class AI {
      *
      * @param prevMoves Mouvements précédents des joueurs
      * @return Mouvement à effectuer
+     * @throws org.json.JSONException
      */
-    public String next(JSONArray prevMoves) {
-        System.out.println("Mouvements précdents : " + prevMoves);
+    public char next(JSONArray prevMoves) throws JSONException {
+        System.out.print("Mouvements précdents : ");
+
+        for (int i = 0; i < prevMoves.length(); i++) {
+            JSONObject prevMove = prevMoves.getJSONObject(i);
+            System.out.print(prevMove);
+        }
+
+        System.out.println();
 
         // Choisis une direction au hasard
-        direction = moves[new Random().nextInt(moves.length)];
+        direction = directions[random.nextInt(directions.length)];
         System.out.println("Mouvement choisi : " + direction);
 
         return direction;

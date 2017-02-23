@@ -6,7 +6,7 @@ Défi
 
 Cette année, vous devrez programmer des intelligences artificielles qui sauront combattre leurs adversaires dans un environnement inspiré de [TRON].
 
-À quatre personnes, vous devrez programmer *deux intelligences artificielles* qui se battront en équipe contre deux autres intelligences artificielles dans un tournoi à mort.
+À quatre personnes, vous devrez programmer **deux** *intelligences artificielles* qui se battront en équipe contre deux autres intelligences artificielles dans un tournoi à mort.
 
 Vous pouvez donc choisir d'utiliser une approche classique, où chaque robot devra essayer de survivre jusqu'à la fin de la partie, ou vous pouvez tenter de faire collaborer vos deux robots !
 
@@ -19,25 +19,27 @@ Par la suite, pour pouvoir tester votre AI, vous devez démarrer quatre instance
 
 Vos modifications doivent principalement se faire dans `AI.java`, mais vous pouvez vous créer d'autres fichiers au besoin.
 
+\pagebreak
+
 Structure
 ---------
 
 ### Début de partie
 
-Au début de la partie, `start` est appelée. Vous recevez un objet en *JSON* qui contient la configuration du jeu, générée par le serveur.
+Au début de la partie, la méthode `start` est appelée. Vous recevez un objet en *JSON* qui contient la configuration du jeu, générée par le serveur.
 
 Voici un exemple de ce `JSONObject` :
 
 ``` {.json}
 {
   "players": [{
-    "x": 1,
+    "x": 6,
     "y": 19,
     "id": "1",
     "team": "1",
     "direction": "u"
   }, {
-    "x": 4,
+    "x": 2,
     "y": 17,
     "id": "2",
     "team": "1",
@@ -47,13 +49,13 @@ Voici un exemple de ce `JSONObject` :
     "y": 21,
     "id": "3",
     "team": "2",
-    "direction": "u"
+    "direction": "l"
   }, {
     "x": 18,
     "y": 21,
     "id": "4",
     "team": "2",
-    "direction": "d"
+    "direction": "r"
   }],
   "obstacles": [{
     "w": 3,
@@ -80,7 +82,7 @@ Finalement, `w` représente la longueur de la grille, `h` représente la largeur
 
 ### À chaque tour de jeu
 
-À chaque tour de jeu, `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tels que reçus par le serveur.
+À chaque tour de jeu, la méthode `next` est appelée. Vous recevez alors un tableau en *JSON* qui contient les mouvements précédents des joueurs, tels que reçus par le serveur.
 
 Le `JSONArray` ressemble à ce qui suit :
 
@@ -90,7 +92,13 @@ Le `JSONArray` ressemble à ce qui suit :
   "direction": "u"
 }, {
   "id": "2",
-  "direction": "u"
+  "direction": "l"
+}, {
+  "id": "3",
+  "direction": "d"
+}, {
+  "id": "4",
+  "direction": "r"
 }]
 ```
 
@@ -100,16 +108,18 @@ Chaque `JSONObject` contient l'identifiant du joueur (`id`) et sa direction pris
 
 `direction` est une `String` qui n'accepte que les valeurs suivantes :
 
--   `u` pour **up** (haut)
--   `l` pour **left** (gauche)
--   `d` pour **down** (bas)
--   `r` pour **right** (droite)
+-   `u` pour *up* (haut)
+-   `l` pour *left* (gauche)
+-   `d` pour *down* (bas)
+-   `r` pour *right* (droite)
 
 ### Fin de partie
 
-À la fin de la partie, `end` est appelée avec, comme attribut, l'identifiant de l'équipe qui a gagné.
+À la fin de la partie, la méthode `end` est appelée avec, comme attribut, l'identifiant de l'équipe qui a gagné.
 
 Il n'est pas nécessaire de faire quelque chose avec la valeur, mais ça peut vous être utile durant les tests.
+
+\pagebreak
 
 Détails techniques
 ------------------
@@ -118,20 +128,22 @@ Détails techniques
 
 Vous ne disposez pas d'un temps infini pour calculer la prochaine direction dans laquelle vous souhaitez vous déplacer.
 
-Si votre robot ne termine pas l'exécution de la fonction `next` avant un certain délai déterminé par le serveur, on assumera que vous souhaitez continuer en ligne droite.
+Si votre robot ne termine pas l'exécution de la méthode `next` avant un certain délai déterminé par le serveur, on assumera que vous souhaitez continuer en ligne droite.
 
-Votre robot s'imaginera aller dans la direction voulue (demandée en retard), ce qui risquera de causer votre défaite dans les tours qui suivent.
+Votre robot s'imaginera aller dans la direction voulue (demandée en retard), ce qui risquerait de causer votre défaite dans les tours qui suivent.
 
-### `JSONObject`
+### JSON
 
-Comme mentionné plus haut, quelques réponses du serveur, sont envoyées en *JSON*.
+Comme mentionné plus haut, quelques réponses du serveur sont envoyées en *JSON*.
 
-La classe `JsonObject` permet de gérer tout ça, avec des méthodes telles que :
+La classe `JSONObject` permet de gérer tout ça, avec des méthodes telles que :
 
 -   `getInt`
--   `getBoolean`
 -   `getString`
+-   `getBoolean`
 -   ...
+
+D'ailleurs, on peut aussi avoir plusieurs `JSONObject` dans un `JSONArray`.
 
 [Vous pouvez consulter la documentation complète sur internet].
 
