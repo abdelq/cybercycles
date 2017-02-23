@@ -1,7 +1,9 @@
 # Logs
 *.log
-/server/saves/
 
 # Dependencies
 node_modules/
-target/
+
+# Miscellaneous
+/server/saves/
+/client/target/
