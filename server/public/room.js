@@ -127,6 +127,7 @@ socket.on('draw', (prevGrid, players) => {
   if (!cellHeight || !cellWidth) {
     cellWidth = cellHeight = Math.min(canvas.height / prevGrid.length, canvas.width / prevGrid[0].length);
 
+    teams = {};
     players.forEach((p) => {
       if (teams[p.team])  {
         teams[p.team].push(p.id);
