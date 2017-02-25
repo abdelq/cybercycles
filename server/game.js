@@ -314,7 +314,7 @@ function next(room) {
   // Emit infos
   const roomID = getRoomID(room);
 
-  const directions = players.map(p => ({
+  const directions = alivePlayers.map(p => ({
     id: p.id,
     direction: p.direction,
   }));
