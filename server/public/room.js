@@ -29,7 +29,6 @@ function drawGrid(grid) {
     ctx.stroke();
   }
 
-  console.log(grid[0].length, "x", grid.length);
   // Vertical lines
   for (var i = 0; i <= grid[0].length; i += 1) {
     ctx.beginPath();
