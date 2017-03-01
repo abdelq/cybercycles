@@ -28,6 +28,7 @@ npm start
 ### Client
 
 ``` bash
+cd client
 mvn package
 mvn exec:java
 ```
