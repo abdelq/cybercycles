@@ -4,17 +4,8 @@ Dépôt contenant le serveur et le client utilisés à l'[édition 2017 du hacka
 
 ## Exigences
 
-* [Node.js](https://nodejs.org), pour le serveur
-* [Apache Maven](https://maven.apache.org), pour le client
-
-## Installation
-
-### Serveur
-
-``` bash
-cd server
-npm install
-```
+* [Node.js](https://nodejs.org), pour le serveur et le client JavaScript
+* [Apache Maven](https://maven.apache.org), pour le client Java
 
 ## Utilisation
 
@@ -22,13 +13,22 @@ npm install
 
 ``` bash
 cd server
+npm install
 npm start
 ```
 
 ### Client
 
+Java:
 ``` bash
-cd client
+cd client/java
 mvn package
 mvn exec:java
+```
+
+Javascript:
+``` bash
+cd client/javscript
+npm install
+npm start
 ```
