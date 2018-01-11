@@ -34,7 +34,7 @@ const obstacles = {
 
 const teams = {
   amount: 2,
-  size: 2,
+  size: 1,
 };
 
 module.exports = {
