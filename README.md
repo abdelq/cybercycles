@@ -1,6 +1,6 @@
 # Cybercycles
 
-Dépôt contenant le serveur et le client utilisés à l'[édition 2017 du hackathon du DIRO](//hackathon.iro.umontreal.ca/2017).
+Dépôt contenant le serveur et le client utilisés à l'[édition 2017 du hackathon du DIRO](http://hackathon.iro.umontreal.ca/2017).
 
 ## Exigences
 
